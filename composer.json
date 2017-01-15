@@ -3,7 +3,8 @@
     "description": "Simple Micro Framework para gestión de API REST",
     "type": "project",
     "require": {
-        "monolog/monolog": "^1.22"
+        "php": "^5.6 || ^7.0",
+        "levitarmouse/core": "1.0-alpha"
     },
     "authors": [
         {
