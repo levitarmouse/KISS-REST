@@ -1,10 +1,9 @@
 {
     "name": "levitarmouse/kiss-rest",
-    "minimum-stability": "dev",
     "description": "Simple Micro Framework para gestión de API REST",
     "type": "project",
     "require": {
-        "monolog/monolog": "^1.22"
+        "php": "^5.3.3 || ^7.0"
     },
     "authors": [
         {
