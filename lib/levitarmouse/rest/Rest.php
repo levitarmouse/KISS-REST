@@ -32,24 +32,28 @@ class Rest {
 
     public function initConfig($restConfigPath) {
         
-        $memc = new \Memcache();
+        $restConfig = null;
+        if (USE_MEMCACHE) {
+            $memc = new \Memcache();
 
-        $host = '127.0.0.1';
-        $port = 11211;
-        $memc->addserver($host, $port);
-        
-        $restConfig = $memc->get('RestConfig');
+            $host = '127.0.0.1';
+            $port = 11211;
+            $memc->addserver($host, $port);
+
+            $restConfig = $memc->get('RestConfig');            
+        }
         
         if ($restConfig) {
             $this->config = $restConfig;
-        } else {
-            if (is_string($restConfigPath)) {
-                $this->config = new ConfigIni($restConfigPath);
-            }
+            
             if (is_a($this->config, '\levitarmouse\core\ConfigIni')) {
                 $memc->set('RestConfig', $this->config);
             }
-        }        
+        } else {
+            if (is_string($restConfigPath)) {
+                $this->config = new ConfigIni($restConfigPath, true);
+            }
+        }
     }
 
     protected function makeToken()
@@ -117,17 +121,15 @@ class Rest {
 //                    $action = $this->getActionByHTTPMethod($method);
                 }
 
-                $what = (isset($whatArray[1]) ) ? strtolower($whatArray[1]) : null;
+                $what = (isset($whatArray[1]) ) ? $whatArray[1] : null;
                 
                 if ($hierarchySize == 3) {
 
                     $with = (isset($whatArray[2]) ) ? strtolower($whatArray[2]) : null;
 
-//                    $action = $this->getActionByHTTPMethod($method);
                 }
             }
 
-//            $oDB = null;
             $oLogger = null;
             $oRequest = null;
             $result = null;
@@ -144,10 +146,6 @@ class Rest {
 
                 $classStr = $restConfig->get($strController);
 
-//                if (!$classStr) {
-//                    $strController = "CONTROLLERS." . strtoupper($what) . "_CONTROLLER";
-//                    $classStr = $restConfig->get($strController);
-//                }
                 if ($classStr === 'RestController') {
                     $class = $fwName . '\rest\\' . $classStr;
                 } else {
@@ -155,7 +153,7 @@ class Rest {
                 }
             } 
             else {
-                $strController = 'CONTROLLERS.'.$what;
+                $strController = 'CONTROLLERS_ROUTING./'.$what;
                 $classStr = $restConfig->get($strController);
 
                 $class = '\controllers\\' . $classStr;
@@ -170,21 +168,22 @@ class Rest {
                 throw new \Exception(Response::INVALID_COMPONENT);
             } else {
 
-                $oParams = new \levitarmouse\rest\RestParams($aReq, $method);
+                $params = (new \levitarmouse\rest\RestParams($aReq, $method))->getParams($method);
 
-                $params = $oParams->getParams($method);
+//                $params = $oParams->getParams($method);
 
                 $params->id = $with;
 
-                $defaultHandler = $this->config->get('DEFAULT.DEFAULT_HANDLER');
+                $handleHttpMethod = $method;
                 
-                $what = (!empty($what)) ? $what : $defaultHandler;
+                $what = (!empty($what)) ? $what : $handleHttpMethod;
 
-                $methodStr = $restConfig->get('METHODS_ROUTING.' . $method."@".strtoupper($what));
+//                $methodStr = $restConfig->get('METHODS_ROUTING.' . $method."@".strtoupper($what));
+                $methodStr = $restConfig->get('METHODS_ROUTING./' . $what."@".$method);
 
                 if ($methodStr == null) {
                     // require basado en metodos POST, PUT, DELETE
-                    $methodStr = $restConfig->get('METHODS_ROUTING.' . strtolower($method));
+                    $methodStr = $restConfig->get('METHODS_ROUTING.' . $method);
                 }
 
                 $methodStr = ($methodStr !== null) ? $methodStr : 'UndefiniedComponent';
@@ -231,14 +230,20 @@ class Rest {
                 
                 try {
 
+                    ///////////////////////////////////////
+                    //// CALL THE HANDLER  ////////////////
+                    ///////////////////////////////////////
                     $result = $handler->$methodStr($params);
+                    ///////////////////////////////////////
 
-                    if ($result->errorId != 0) {
+                    if (is_a($result, '\levitarmouse\rest\Response')) {
+                        if ($result->errorId != 0) {
 
-                        throw new \Exception($result->description);
+                            throw new \Exception($result->description);
+                        }                        
+                        $result->setError(\levitarmouse\rest\Response::NO_ERRORS);
                     }
 
-                    $result->setError(\levitarmouse\rest\Response::NO_ERRORS);
                 } catch (\Exception $ex) {
                     $result = new levitarmouse\rest\Response();
                     if ($ex->getMessage()) {
@@ -276,32 +281,32 @@ class Rest {
         }
     }
 
-    protected function getActionByHTTPMethod($method = '') {
-
-        $action = '';
-
-        switch (strtoupper($method)) {
-            case 'GET':
-                $action = 'get';
-                break;
-            case 'POST':
-                $action = 'post';
-                break;
-            case 'PUT':
-                $action = 'put';
-                break;
-            case 'DELETE':
-                $action = 'delete';
-                break;
-            case 'PATCH':
-                $action = 'patch';
-                break;
-            case 'OPTIONS':
-                $action = 'options';
-                break;
-        }
-        return $action;
-    }
+//    protected function getActionByHTTPMethod($method = '') {
+//
+//        $action = '';
+//
+//        switch (strtoupper($method)) {
+//            case 'GET':
+//                $action = 'get';
+//                break;
+//            case 'POST':
+//                $action = 'post';
+//                break;
+//            case 'PUT':
+//                $action = 'put';
+//                break;
+//            case 'DELETE':
+//                $action = 'delete';
+//                break;
+//            case 'PATCH':
+//                $action = 'patch';
+//                break;
+//            case 'OPTIONS':
+//                $action = 'options';
+//                break;
+//        }
+//        return $action;
+//    }
 
     public function validateCsrf($token, $bCreateOrLogin) {
 

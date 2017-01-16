@@ -32,6 +32,8 @@ class RestController
     protected $oLogger;
 
     private $_alreadyStarted = false;
+    
+    protected $httpMethod;
 
     public function __call($name, $arguments)
     {
@@ -39,10 +41,12 @@ class RestController
     }
 
     public function __construct($dbCfg = null)
-    { }
+    {
+        $this->httpMethod = $method = filter_input(INPUT_SERVER, 'REQUEST_METHOD');
+    }
     
-    public function get($params = null) {
-        $params->method = strtoupper(__FUNCTION__);
+    public function get($params = null) {   
+        $params->method = strtoupper(__METHOD__);
         return $this->hello($params);
     }
     
@@ -75,9 +79,18 @@ class RestController
         
         $response = new \levitarmouse\rest\HelloResponse();
         
-        $response->message = "Hello from ".__CLASS__.". Method: ".$params->method;
+        $thisClass = get_class($this);
+                
+        if ($thisClass != 'levitarmouse\rest\RestController') {
+            $method = $this->httpMethod;
+            $response->message = "Hello from ".__METHOD__.". Method: ".$params->method;
+            $response->responseDescription = "You dont implemented ".$method." Response in your Controller yet. ";
+            $response->responseDescription .= "Do it inside him and configurate routing in rest.ini like /entity@$method = functionName";
+        }
+        
         $response->sessionId = session_id();
-        $response->token  = session_id();
+        $response->time      = date('d-m-Y H:i:s');
+//        $response->token  = session_id();
         
         return $response;
     }

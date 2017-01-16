@@ -11,6 +11,6 @@ class TimeController extends \levitarmouse\rest\Response {
         
         $response->dateTime = $dateTime;
         
-        return $response;        
+        return $response;
     }
 }

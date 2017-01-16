@@ -24,9 +24,9 @@ class SmartObject
     {
         $this->_source       = $source;
 
-//        if (!empty($source)) {
-//            $this->analize();
-//        }
+        if (!empty($source)) {
+            $this->analize();
+        }
     }
 
     public function getObject($source = null) {

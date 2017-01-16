@@ -2,6 +2,13 @@
 
 define('CORE', 'levitarmouse');
 
+//$useMemCache = class_exists('Memcache');
+$useMemCache = false;
+
+if (!defined('USE_MEMCACHE')) {
+    define("USE_MEMCACHE", $useMemCache);
+}
+
 if (!defined('ROOT_PATH')) {
     define("ROOT_PATH", realpath(__DIR__."/../")."/");
 }
@@ -65,6 +72,5 @@ $garbage = array_pop($aLinkName);
 $linkName   = implode('/', $aLinkName);
 
 define('WWW_LINK_NAME', $linkName);
-
 
 require_once 'Autoload.php';
