@@ -16,19 +16,16 @@ class RestParams
 
     public function __construct($data, $method = '')
     {
-//        if ($method == 'GET' || $method == 'POST') {
         if ($method == 'GET') {
             $querystring = $data;
 
             if (isset($querystring['params'])) {
                 if (is_string($querystring['params'])) {
                     $data = json_decode($querystring['params']);
-            }
-//            if (is_string($querystring)) {
+                }
             }
         }
 
-//        $params = new \stdClass();
         $params = new \levitarmouse\core\Object();
         if ($data) {
             foreach ($data as $key => $value) {
@@ -36,14 +33,10 @@ class RestParams
             }
         }
         $this->params = $params;
-//        $this->returnParams();
     }
 
     public function getParams($method = '') {
 
-//        if ($method == 'GET') {
-//
-//        }
         return $this->params;
     }
 }
