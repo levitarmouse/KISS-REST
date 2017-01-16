@@ -104,7 +104,6 @@ class Rest {
             // Identifying an entity in the request
             if (isset($PATH_INFO)) {
                 
-//                $PATH_INFO = str_replace('/rest', '', $PATH_INFO);
                 $PATH_INFO = str_replace(WWW_LINK_NAME, '', $PATH_INFO);
                 
                 $default = false;
@@ -190,7 +189,6 @@ class Rest {
 
                 $methodStr = ($methodStr !== null) ? $methodStr : 'UndefiniedComponent';
 
-//                error_log("method: " . $method . "\n", 3, '/tmp/csrf.log');
 
                 if (in_array(strtoupper($method), array('POST', 'PUT', 'DELETE', 'GET'))) {
                     if (!in_array(strtolower($methodStr), array('hello'))
@@ -206,8 +204,6 @@ class Rest {
                         if (!$csrf) {
                             $csrf = (isset($headers['authorizationcsrf'])) ? $headers['authorizationcsrf'] : '';
                         }
-
-//                        error_log("csrf: " . $csrf . "\n", 3, '/tmp/csrf.log');
 
 
                         $bCreateOrLogin = (strtoupper($what) == 'ACCOUNT' && strtoupper($methodStr) == 'CREATE');

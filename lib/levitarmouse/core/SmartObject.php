@@ -1,6 +1,6 @@
 <?php
 /**
- * ConfigIni
+ * SmartObject
  *
  * @category  CORE
  * @package   Core
