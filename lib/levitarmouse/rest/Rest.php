@@ -67,8 +67,8 @@ class Rest {
         
     }
 
-    public function handleRequest($params = null) {
-        
+    public function handleRequest() {
+
         if ($this->config === null
             || is_a($this->config, 'ConfigIni')) {
             throw new \Exception('REST_CONFIG_IS_NOT_DEFINED');
@@ -97,6 +97,8 @@ class Rest {
 
             $method = filter_input(INPUT_SERVER, 'REQUEST_METHOD');
 
+            $params = (new \levitarmouse\rest\RequestParams($aReq, $method))->getParams($method);
+            
             $what = null;
             $action = null;
             $with = null;
@@ -168,17 +170,12 @@ class Rest {
                 throw new \Exception(Response::INVALID_COMPONENT);
             } else {
 
-                $params = (new \levitarmouse\rest\RestParams($aReq, $method))->getParams($method);
-
-//                $params = $oParams->getParams($method);
-
                 $params->id = $with;
 
                 $handleHttpMethod = $method;
                 
                 $what = (!empty($what)) ? $what : $handleHttpMethod;
 
-//                $methodStr = $restConfig->get('METHODS_ROUTING.' . $method."@".strtoupper($what));
                 $methodStr = $restConfig->get('METHODS_ROUTING./' . $what."@".$method);
 
                 if ($methodStr == null) {

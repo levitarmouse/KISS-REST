@@ -36,6 +36,8 @@ class Response
     public $errorId;
     public $errorCode;
     public $description;
+    
+    public $responseType;
 
     protected function init()
     {
