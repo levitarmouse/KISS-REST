@@ -38,8 +38,24 @@ class RequestParams
         $this->params = $params;
     }
 
-    public function getParams($method = '') {
-
-        return $this->params;
+    public function getContent($method = '') {
+        
+        if (is_a($this->params, 'levitarmouse\core\Object')) {
+            $content = $this->params;
+        } else {
+            if (is_array($this->params) || is_object($this->params) ) {
+                $content = new \levitarmouse\core\Object();
+                foreach ($this->params as $attrib => $value) {
+                    $content->$attrib = $value;
+                }
+            } else {
+                $content = $this->params;
+            }
+        }
+//        $source = $this->params;
+//        $params = new \levitarmouse\core\SmartObject($source);
+                
+//        return $this->params;
+        return $content;
     }
 }

@@ -97,7 +97,7 @@ class Rest {
 
             $method = filter_input(INPUT_SERVER, 'REQUEST_METHOD');
 
-            $params = (new \levitarmouse\rest\RequestParams($aReq, $method))->getParams($method);
+            $params = (new \levitarmouse\rest\RequestParams($aReq, $method))->getContent($method);
             
             $what = null;
             $action = null;
@@ -233,25 +233,53 @@ class Rest {
                     $result = $handler->$methodStr($params);
                     ///////////////////////////////////////
 
+                    $rawResponse = false;
+                    
                     if (is_a($result, '\levitarmouse\rest\Response')) {
                         if ($result->errorId != 0) {
 
                             throw new \Exception($result->description);
                         }                        
                         $result->setError(\levitarmouse\rest\Response::NO_ERRORS);
+                    } else {
+                        if ($rawResponse !== true) {
+                            $response = new Response();
+                            $response->responseContent = $result;
+                            
+                            $response->setError(\levitarmouse\rest\Response::NO_ERRORS);
+                            $result = $response;
+                        }
                     }
 
-                } catch (\Exception $ex) {
-                    $result = new levitarmouse\rest\Response();
+                }
+                catch (\levitarmouse\core\HTTP_Exception $ex) {
+                    $result = new Response();
+                    
+                    $message = $ex->getMessage();
+                    if ($message) {
+
+                        $result->setError($message);
+                    }                        
+                    $result->exception = $ex;
+                }
+                catch (\Exception $ex) {
+                    $result = new Response();
                     if ($ex->getMessage()) {
-                        $result->setError($ex->getMessage());
-                        if (is_a($ex, 'levitarmouse\util\security\XSSException')) {
-                            $result->description = $ex->getWrongs();
+                        $message = $ex->getMessage();
+                        if ($obj = json_decode($message)) {
+                            $errorCode = $obj->errorCode;
+                            $result->setError($errorCode);
+                        } else {
+                            if (is_a($ex, 'levitarmouse\util\security\XSSException')) {
+                                $result->exception = $ex->getWrongs();
+                            }                            
+                            $result->setError($message);
                         }
                     } else {
+                        $result->exception = $ex;
                         $result->setError(levitarmouse\rest\Response::INTERNAL_ERROR);
                     }
-                }
+                } 
             }
         } catch (\Exception $ex) {
 
@@ -319,12 +347,30 @@ class Rest {
 
         return $bCSRF_OK;
     }
-
-    public function responseJson($result = '') {
-
-        header('Content-type: text/json');
-        header('Content-type: application/json');
-        echo json_encode($result);
+    
+    public function httpResponse($result = '') {
+        
     }
 
+    public function responseJson($result = null) {
+
+        if (isset($result->exception)) {
+            $exception = $result->exception;
+            $httpCode = $exception->httpCode;
+            
+            if ($httpCode)
+                http_response_code($httpCode);
+            
+            if (!$exception->exceptionDescription) {
+//                $toShow = $result->description;
+            } else {
+                $toShow = $exception->exceptionDescription;
+            }
+            echo $toShow;
+        } else {
+            header('Content-type: text/json');
+            header('Content-type: application/json');            
+            echo json_encode($result);
+        }        
+    }
 }

@@ -2,7 +2,7 @@
 
 namespace controllers;
 
-class TimeController extends \levitarmouse\rest\Response {
+class TimeController extends \levitarmouse\rest\RestController {
 
     public function dateTime() {
         $dateTime = date('d-m-Y H:i:s');
