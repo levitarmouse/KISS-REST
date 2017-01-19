@@ -1,4 +1,7 @@
 #!/bin/bash
-/usr/bin/find . -name tmp -print0 | xargs -0 chmod -R 777;
-/usr/bin/find . -name cache -print0 | xargs -0 chmod -R 777;
-/usr/bin/find . -name logs -print0 | xargs -0 chmod -R 777;
+
+echo "asignando permisos a las carpetas logs";
+find . -name logs -print0 | xargs -0 chmod -R 777;
+
+echo "asignando permisos a la carpeta uploads";
+find . -name uploads -print0 | xargs -0 chmod -R 777;
