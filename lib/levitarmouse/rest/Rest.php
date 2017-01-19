@@ -98,6 +98,11 @@ class Rest {
             $method = filter_input(INPUT_SERVER, 'REQUEST_METHOD');
 
             $params = (new \levitarmouse\rest\RequestParams($aReq, $method))->getContent($method);
+            if ($method == 'POST' && isset($params->HTTP_METHOD)) {
+                if (in_array($params->HTTP_METHOD, array('GET', 'POST', 'PUT', 'DELETE', 'PUSH', 'OPTIONS'))) {
+                    $method = $params->HTTP_METHOD;
+                }
+            }
             
             $what = null;
             $action = null;

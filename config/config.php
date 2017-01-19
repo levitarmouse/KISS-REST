@@ -58,6 +58,9 @@ define ('DB_CONFIG', CONFIG_PATH.'database.ini');
 
 define ('REST_CONFIG', CONFIG_PATH.'rest.ini');
 
+define ('UPLOADS_LOCATION', ROOT_PATH.'uploads/');
+define ('PUBLISH_LOCATION', '');
+define ('IMAGES_SOURCE', '');
 
 $aWebServicesPSR0 = array();
 $aWebServicesPSR0[] = LIB_PATH;

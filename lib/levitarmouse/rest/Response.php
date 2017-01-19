@@ -21,6 +21,7 @@ class Response
     const INVALID_CONFIGURATION = 'INVALID_CONFIGURATION';
     const INVALID_NUMBER = 'INVALID_NUMBER';
     const INVALID_PARAMS = 'INVALID_PARAMS';
+    const INVALID_SIZE = 'INVALID_SIZE';
     const LOGIN_IS_REQUIRED = 'LOGIN_IS_REQUIRED';
     const MAIL_ALREADY_IN_USE = 'MAIL_ALREADY_IN_USE';
     const NICK_NAME_OR_PASSTOKEN_EMPTY = 'NICK_NAME_OR_PASSTOKEN_EMPTY';
@@ -71,6 +72,7 @@ class Response
 
             self::PARAMETERS_TOO_LONG => array('id' => 108, 'description' => 'Valores demasiado extensos'),
             self::INVALID_PARAMS => array('id' => 109, 'description' => 'Valores invalidos o faltantes'),
+            self::INVALID_SIZE => array('id' => 112, 'description' => 'El valor de campo excede la longitud permitida'),
             self::INVALID_NUMBER => array('id' => 111, 'description' => 'Se esperaba un valor numerico'),
             self::INACTIVE_ERROR => array('id' => 1000, 'description' => 'Unknown activity'),
         );
