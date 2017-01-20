@@ -206,7 +206,6 @@ class Rest {
                             $csrf = (isset($headers['authorizationcsrf'])) ? $headers['authorizationcsrf'] : '';
                         }
 
-
                         $bCreateOrLogin = (strtoupper($what) == 'ACCOUNT' && strtoupper($methodStr) == 'CREATE');
 
                         $params->token = $csrf;
@@ -227,9 +226,6 @@ class Rest {
 //                    }
                 }
 
-                
-                
-                
                 try {
 
                     ///////////////////////////////////////
@@ -310,33 +306,6 @@ class Rest {
             $this->responseJson($result);
         }
     }
-
-//    protected function getActionByHTTPMethod($method = '') {
-//
-//        $action = '';
-//
-//        switch (strtoupper($method)) {
-//            case 'GET':
-//                $action = 'get';
-//                break;
-//            case 'POST':
-//                $action = 'post';
-//                break;
-//            case 'PUT':
-//                $action = 'put';
-//                break;
-//            case 'DELETE':
-//                $action = 'delete';
-//                break;
-//            case 'PATCH':
-//                $action = 'patch';
-//                break;
-//            case 'OPTIONS':
-//                $action = 'options';
-//                break;
-//        }
-//        return $action;
-//    }
 
     public function validateCsrf($token, $bCreateOrLogin) {
 
