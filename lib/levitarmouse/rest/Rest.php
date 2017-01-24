@@ -135,6 +135,22 @@ class Rest {
                     $with = (isset($whatArray[2]) ) ? strtolower($whatArray[2]) : null;
 
                 }
+                
+                if ($hierarchySize == 4) {
+
+                    $group = (isset($whatArray[2]) ) ? strtolower($whatArray[2]) : null;
+                    
+                    $with  = (isset($whatArray[3]) ) ? strtolower($whatArray[3]) : null;
+                }
+                
+                if ($hierarchySize == 5) {
+
+                    $group = (isset($whatArray[2]) ) ? strtolower($whatArray[2]) : null;
+
+                    $subgroup = (isset($whatArray[3]) ) ? strtolower($whatArray[3]) : null;
+                    
+                    $with  = (isset($whatArray[4]) ) ? strtolower($whatArray[4]) : null;
+                }
             }
 
             $oLogger = null;

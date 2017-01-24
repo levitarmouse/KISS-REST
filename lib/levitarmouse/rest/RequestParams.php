@@ -41,6 +41,22 @@ class RequestParams
             if (is_array($this->params) || is_object($this->params) ) {
                 $content = new \levitarmouse\core\Object();
                 foreach ($this->params as $attrib => $value) {
+                    
+                    $jsonInside = false;
+                    
+                    $prospect = json_decode($value);
+                    if (is_object($prospect)) {
+                        $jsonInside = false;
+                    }
+                    
+                    if ($jsonInside) {
+                        $objectInside = new \levitarmouse\core\Object();
+                        foreach ($prospect as $insideKey => $insideValue) {
+                            $objectInside->$insideKey = $insideValue;                            
+                        }
+                        $value = $objectInside;
+                    }
+                    
                     $content->$attrib = $value;
                 }
             } else {
