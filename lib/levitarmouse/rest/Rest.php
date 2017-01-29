@@ -13,6 +13,10 @@ namespace levitarmouse\rest;
 use \levitarmouse\rest\Response;
 use \levitarmouse\core\ConfigIni;
 
+//ini_set('session.use_cookies', 0);
+
+//ini_set('session.use_only_cookies', 0);
+
 /**
  * @property \levitarmouse\core\ConfigIni $config Rest Config Objet from /config/rest.ini
  */
@@ -108,8 +112,22 @@ class Rest {
             $action = null;
             $with = null;
 
-            $PATH_INFO = filter_input(INPUT_SERVER, 'REDIRECT_URL');
-            
+            //$PATH_INFO = filter_input(INPUT_SERVER, 'REDIRECT_URL');
+
+            // fix donweb
+            $PATH_INFO = filter_input(INPUT_SERVER, 'REQUEST_URI');
+
+            $PATH_INFO = str_replace(APP_NAME.'/', '', $PATH_INFO);
+
+            if (strlen($PATH_INFO) == 1) {
+                $PATH_INFO = null;
+            }
+
+            if (count($aPathInfo = explode('?', $PATH_INFO)) > 1) {
+                $PATH_INFO = ($aPathInfo[0] != '/') ? $aPathInfo[0] : null;
+            }
+            // fix donweb
+
             $default = true;
             
             // Identifying an entity in the request
@@ -124,12 +142,11 @@ class Rest {
                 $hierarchySize = count($whatArray);
 
                 if ($hierarchySize == 2) {
-
-//                    $action = $this->getActionByHTTPMethod($method);
-                }
+////                    $action = $this->getActionByHTTPMethod($method);
+               }
 
                 $what = (isset($whatArray[1]) ) ? $whatArray[1] : null;
-                
+
                 if ($hierarchySize == 3) {
 
                     $with = (isset($whatArray[2]) ) ? strtolower($whatArray[2]) : null;
@@ -199,6 +216,13 @@ class Rest {
 
                 $methodStr = $restConfig->get('METHODS_ROUTING./' . $what."@".$method);
 
+                $aMethodStr = explode('-->', $methodStr);
+
+                $bRAW      = (isset($aMethodStr[1]) && strtoupper($aMethodStr[1]) == 'RAW');
+                if ($bRAW) {
+                    $methodStr = $aMethodStr[0];
+                }
+
                 if ($methodStr == null) {
                     // require basado en metodos POST, PUT, DELETE
                     $methodStr = $restConfig->get('METHODS_ROUTING.' . $method);
@@ -206,7 +230,7 @@ class Rest {
 
                 $methodStr = ($methodStr !== null) ? $methodStr : 'UndefiniedComponent';
 
-
+/*
                 if (in_array(strtoupper($method), array('POST', 'PUT', 'DELETE', 'GET'))) {
                     if (!in_array(strtolower($methodStr), array('hello'))
                     ) {
@@ -241,6 +265,7 @@ class Rest {
 //                        $params->token = $csrf;
 //                    }
                 }
+*/
 
                 try {
 
@@ -250,8 +275,8 @@ class Rest {
                     $result = $handler->$methodStr($params);
                     ///////////////////////////////////////
 
-                    $rawResponse = false;
-                    
+                    $rawResponse = $bRAW;
+
                     if (is_a($result, '\levitarmouse\rest\Response')) {
                         if ($result->errorId != 0) {
 
@@ -259,7 +284,10 @@ class Rest {
                         }                        
                         $result->setError(\levitarmouse\rest\Response::NO_ERRORS);
                     } else {
-                        if ($rawResponse !== true) {
+                        if ($rawResponse) {
+                            $this->rawResponse($result);
+                        } else {
+//                        if ($rawResponse !== true) {
                             $response = new Response();
                             $response->responseContent = $result;
                             
@@ -270,6 +298,9 @@ class Rest {
 
                 }
                 catch (\levitarmouse\core\HTTP_Exception $ex) {
+                    
+                    header('HTTP/1.1 500');
+                    
                     $result = new Response();
                     
                     $message = $ex->getMessage();
@@ -280,6 +311,9 @@ class Rest {
                     $result->exception = $ex;
                 }
                 catch (\Exception $ex) {
+                    
+                    header('HTTP/1.1 500');
+                    
                     $result = new Response();
                     if ($ex->getMessage()) {
                         $message = $ex->getMessage();
@@ -300,6 +334,8 @@ class Rest {
             }
         } catch (\Exception $ex) {
 
+            header('HTTP/1.1 500');
+            
             global $invalidParams;
 
             $mesg = $ex->getMessage();
@@ -337,9 +373,35 @@ class Rest {
 
         return $bCSRF_OK;
     }
-    
+
     public function httpResponse($result = '') {
-        
+
+    }
+
+    public function rawResponse(RawResponseDTO $result) {
+
+        if ($result->httpCode) {
+            header('HTTP/1.1 '.$result->httpCode);
+        }
+
+        if ($result->contentType) {
+            switch (strtoupper($result->contentType)) {
+                case 'PLAIN':
+                header('Content-Type: text/plain');
+                break;
+                case 'JSON':
+                header('Content-type: application/json');
+                break;
+                default:
+                header('Content-type: application/json');
+                break;
+            }
+        }
+
+        if ($result->content) {
+            echo $result->content;
+        }
+        die;
     }
 
     public function responseJson($result = null) {
@@ -347,10 +409,10 @@ class Rest {
         if (isset($result->exception)) {
             $exception = $result->exception;
             $httpCode = $exception->httpCode;
-            
+
             if ($httpCode)
                 http_response_code($httpCode);
-            
+
             if (!$exception->exceptionDescription) {
 //                $toShow = $result->description;
             } else {
@@ -359,8 +421,8 @@ class Rest {
             echo $toShow;
         } else {
             header('Content-type: text/json');
-            header('Content-type: application/json');            
+            header('Content-type: application/json');
             echo json_encode($result);
-        }        
+        }
     }
 }

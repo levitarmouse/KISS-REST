@@ -27,10 +27,10 @@ class RequestParams
 
         $params = new \levitarmouse\core\SmartObject();
         if (is_array($data) || is_object($data)) {
-            $params = $params->analize($data);
+            $oParams = $params->analize($data);
 
         }
-        $this->params = $params;
+        $this->params = $oParams;
     }
 
     public function getContent($method = '') {
