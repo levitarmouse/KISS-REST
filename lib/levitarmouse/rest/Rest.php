@@ -17,18 +17,20 @@ use \levitarmouse\core\ConfigIni;
 
 //ini_set('session.use_only_cookies', 0);
 
+//ini_set('max_input_time', 90);
+
 /**
  * @property \levitarmouse\core\ConfigIni $config Rest Config Objet from /config/rest.ini
  */
 class Rest {
-    
+
     protected $config;
 
     public function __construct($restConfig = '') {
         $this->config = null;
-        
+
         session_start();
-        
+
         if ($restConfig) {
             $this->initConfig($restConfig);
         }
