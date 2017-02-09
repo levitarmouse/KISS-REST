@@ -32,8 +32,8 @@ class RawResponseDTO {
     public $content;
     
     function __construct($httpCode = null, $contentType = null) {
-        $this->httpCode = null;
-        $this->contentType = null;
+        $this->httpCode = $httpCode;
+        $this->contentType = $contentType;
         $this->content = null;
     }
     

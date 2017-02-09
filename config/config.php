@@ -24,7 +24,7 @@ if (!defined('LOGS_PATH')) {
 }
 
 if (!defined('APP_NAME')) {
-    define('APP_NAME', 'OLX');
+    define('APP_NAME', 'kissrest');
 }
 
 if (!defined('EXTERNALS_PATH')) {

@@ -13,9 +13,14 @@ namespace levitarmouse\rest;
 use \levitarmouse\rest\Response;
 use \levitarmouse\core\ConfigIni;
 
-//ini_set('session.use_cookies', 0);
-
-//ini_set('session.use_only_cookies', 0);
+// para no eviar cookies al controller linkeado con pump/
+$m = ($_SERVER['REQUEST_METHOD'] == 'POST');
+$y = $_SERVER['REQUEST_URI'];
+$x = preg_match('(pump/[a-z0-9A-Z]*)', $y);
+if ($x && $m)  {
+    ini_set('session.use_cookies', 0);
+    ini_set('session.use_only_cookies', 0);
+}
 
 //ini_set('max_input_time', 90);
 
@@ -37,7 +42,7 @@ class Rest {
     }
 
     public function initConfig($restConfigPath) {
-        
+
         $restConfig = null;
         if (USE_MEMCACHE) {
             $memc = new \Memcache();
@@ -46,12 +51,12 @@ class Rest {
             $port = 11211;
             $memc->addserver($host, $port);
 
-            $restConfig = $memc->get('RestConfig');            
+            $restConfig = $memc->get('RestConfig');
         }
-        
+
         if ($restConfig) {
             $this->config = $restConfig;
-            
+
             if (is_a($this->config, '\levitarmouse\core\ConfigIni')) {
                 $memc->set('RestConfig', $this->config);
             }
@@ -83,6 +88,7 @@ class Rest {
         }
         
         try {
+            $input = file_get_contents("php://input");
             $aReq = json_decode(file_get_contents("php://input"));
 
             $invalidParams = null;
@@ -104,17 +110,16 @@ class Rest {
             $method = filter_input(INPUT_SERVER, 'REQUEST_METHOD');
 
             $params = (new \levitarmouse\rest\RequestParams($aReq, $method))->getContent($method);
+
             if ($method == 'POST' && isset($params->HTTP_METHOD)) {
                 if (in_array($params->HTTP_METHOD, array('GET', 'POST', 'PUT', 'DELETE', 'PUSH', 'OPTIONS'))) {
                     $method = $params->HTTP_METHOD;
                 }
             }
-            
+
             $what = null;
             $action = null;
             $with = null;
-
-            //$PATH_INFO = filter_input(INPUT_SERVER, 'REDIRECT_URL');
 
             // fix donweb
             $PATH_INFO = filter_input(INPUT_SERVER, 'REQUEST_URI');
@@ -131,14 +136,14 @@ class Rest {
             // fix donweb
 
             $default = true;
-            
+
             // Identifying an entity in the request
             if (isset($PATH_INFO)) {
-                
+
                 $PATH_INFO = str_replace(WWW_LINK_NAME, '', $PATH_INFO);
-                
+
                 $default = false;
-                
+
                 $whatArray = explode('/', $PATH_INFO);
 
                 $hierarchySize = count($whatArray);
@@ -175,13 +180,9 @@ class Rest {
             $oLogger = null;
             $oRequest = null;
             $result = null;
-//            $token = null;
-            
-            // si no hubo indicación de ruta, se llama al keep alive de la session
-            
+
             // Frontal Controller idenfication
             if ($default) {
-                
                 $fwName  = CORE;
 
                 $strController = (empty($what)) ? "DEFAULT.DEFAULT_CONTROLLER" : '';
@@ -193,18 +194,18 @@ class Rest {
                 } else {
                     $class = $class = '\controllers\\' . $classStr;
                 }
-            } 
+            }
             else {
                 $strController = 'CONTROLLERS_ROUTING./'.$what;
                 $classStr = $restConfig->get($strController);
 
                 $class = '\controllers\\' . $classStr;
             }
-            
+
             $handler = null;
             if (class_exists($class)) {
                 $handler = new $class();
-            } 
+            }
 
             if (!$handler) {
                 throw new \Exception(Response::INVALID_COMPONENT);
@@ -213,7 +214,7 @@ class Rest {
                 $params->id = $with;
 
                 $handleHttpMethod = $method;
-                
+
                 $what = (!empty($what)) ? $what : $handleHttpMethod;
 
                 $methodStr = $restConfig->get('METHODS_ROUTING./' . $what."@".$method);
@@ -283,7 +284,7 @@ class Rest {
                         if ($result->errorId != 0) {
 
                             throw new \Exception($result->description);
-                        }                        
+                        }
                         $result->setError(\levitarmouse\rest\Response::NO_ERRORS);
                     } else {
                         if ($rawResponse) {
@@ -292,7 +293,7 @@ class Rest {
 //                        if ($rawResponse !== true) {
                             $response = new Response();
                             $response->responseContent = $result;
-                            
+
                             $response->setError(\levitarmouse\rest\Response::NO_ERRORS);
                             $result = $response;
                         }
@@ -304,17 +305,17 @@ class Rest {
                     header('HTTP/1.1 500');
                     
                     $result = new Response();
-                    
+
                     $message = $ex->getMessage();
                     if ($message) {
 
                         $result->setError($message);
-                    }                        
+                    }
                     $result->exception = $ex;
                 }
                 catch (\Exception $ex) {
                     
-                    header('HTTP/1.1 500');
+//                    header('HTTP/1.1 500');
                     
                     $result = new Response();
                     if ($ex->getMessage()) {
@@ -325,14 +326,14 @@ class Rest {
                         } else {
                             if (is_a($ex, 'levitarmouse\util\security\XSSException')) {
                                 $result->exception = $ex->getWrongs();
-                            }                            
+                            }
                             $result->setError($message);
                         }
                     } else {
                         $result->exception = $ex;
                         $result->setError(levitarmouse\rest\Response::INTERNAL_ERROR);
                     }
-                } 
+                }
             }
         } catch (\Exception $ex) {
 
@@ -352,10 +353,10 @@ class Rest {
                 $invalidParamsDescription = $invalidParams;
                 //        $invalidParamsDescription = json_encode($invalidParams);
                 $invalidParams = null;
-                $result->description = $invalidParamsDescription;
+                $result->errorDescription = $invalidParamsDescription;
             }
         }
-        
+
         IF ($apiType == 'REST') {
             $this->responseJson($result);
         }
@@ -389,10 +390,12 @@ class Rest {
         if ($result->contentType) {
             switch (strtoupper($result->contentType)) {
                 case 'PLAIN':
-                header('Content-Type: text/plain');
+                    header('Content-Type: text/plain');
+                    echo $result->content;
                 break;
                 case 'JSON':
-                header('Content-type: application/json');
+                    header('Content-type: application/json');
+                    echo json_encode($result->content);
                 break;
                 default:
                 header('Content-type: application/json');
@@ -400,9 +403,6 @@ class Rest {
             }
         }
 
-        if ($result->content) {
-            echo $result->content;
-        }
         die;
     }
 

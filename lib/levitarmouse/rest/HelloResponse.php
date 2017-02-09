@@ -18,6 +18,5 @@ namespace levitarmouse\rest;
 class HelloResponse extends Response
 {
     public $token;
-    public $sessionId;
     public $message;
 }

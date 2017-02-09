@@ -32,7 +32,7 @@ class RestController
     protected $oLogger;
 
     private $_alreadyStarted = false;
-    
+
     protected $httpMethod;
 
     public function __call($name, $arguments)
@@ -44,41 +44,41 @@ class RestController
     {
         $this->httpMethod = $method = filter_input(INPUT_SERVER, 'REQUEST_METHOD');
     }
-    
-    public function get($params = null) {   
+
+    public function get($params = null) {
         $params->method = strtoupper(__METHOD__);
         return $this->hello($params);
     }
-    
+
     public function post($params = null) {
         $params->method = strtoupper(__FUNCTION__);
         return $this->hello($params);
     }
-    
+
     public function put($params = null) {
         $params->method = strtoupper(__FUNCTION__);
         return $this->hello($params);
     }
-    
+
     public function delete($params = null) {
         $params->method = strtoupper(__FUNCTION__);
         return $this->hello($params);
     }
-    
+
     public function patch($params = null) {
         $params->method = strtoupper(__FUNCTION__);
         return $this->hello($params);
     }
-    
+
     public function options($params = null) {
         $params->method = strtoupper(__FUNCTION__);
         return $this->hello($params);
     }
-    
+
     public function hello($params = null) {
-        
+
         $thisClass = get_class($this);
-                
+
         if ($thisClass != 'levitarmouse\rest\RestController') {
             $method = $this->httpMethod;
 
@@ -88,23 +88,19 @@ class RestController
             $exception->httpMethod = $method;
             $exception->exceptionDescription = "You dont implemented ".$method."  Response in your Controller yet. ";
             $exception->exceptionDescription .= "Do it inside him and configure routing in rest.ini as /entity@$method = name where name is the function name which handle the HTTP method";
-            
+
             $exception->exceptionDescription  = "You did not implement the method that manage ".$method."s in your controller yet. ";
             $exception->exceptionDescription .= "Do it inside it and after configure the routing in rest.ini as /entity@".$method." = name";
             $exception->exceptionDescription .= "(where name is the the function in your controller that manage the $method HTTP method.)";
-            
-
- 
 
             throw $exception;
         } else {
-            $response = new \levitarmouse\rest\HelloResponse();            
+            $response = new \levitarmouse\rest\HelloResponse();
         }
-        
+
         $response->sessionId = session_id();
         $response->time      = date('d-m-Y H:i:s');
-//        $response->token  = session_id();
-        
+
         return $response;
     }
 
@@ -113,8 +109,6 @@ class RestController
      * @param levitarmouse\util\security\InjectionTestResult $params
      */
     protected function validateRequestParams($params, $omissions = array(), $specialChars = array()) {
-
-//        $omissions = array('token');
 
         if (is_a($params, 'levitarmouse\core\Object')) {
             $params = $params->getAttribs();
@@ -188,7 +182,7 @@ class RestController
                 } else {
                     $oSession->last_update = Mapper::SQL_SYSDATE_STRING;
                     $oSession->modify();
-                    $result->statusCode  = PRPOpCodes::MULTI_LOGIN_SUCCESS;
+//                    $result->statusCode  = PRPOpCodes::MULTI_LOGIN_SUCCESS;
                     $result->user_id     = $oSession->user_id;
                     $result->status = $oSession->status;
                     $result->message     = 'Hello again';
@@ -233,9 +227,9 @@ class RestController
             $hash = sha1($str);
         }
     }
-    
+
     protected function response($mixed) {
-        
+
         $response = new Response();
         if (is_array($mixed)) {
             foreach ($mixed as $key => $value) {
@@ -249,15 +243,15 @@ class RestController
                 $aContentType = explode('\\', $contentType);
                 $type = array_pop($aContentType);
             } else {
-                $type = gettype($mixed);                
+                $type = gettype($mixed);
             }
-            
+
             $content = new \stdClass();
             $content->$type = $mixed;
-            
+
             $response->content = $content;
         }
-        
+
         return $response;
     }
 }

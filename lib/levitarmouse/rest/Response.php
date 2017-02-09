@@ -38,7 +38,7 @@ class Response
     private $_errors;
     public $errorId;
     public $errorCode;
-    public $description;
+    public $errorDescription;
     
     public $responseType;
 
@@ -86,10 +86,10 @@ class Response
 
         if (isset($this->_errors[$code])) {
             $this->errorId          = $this->_errors[$code]['id'];
-            $this->description = $this->_errors[$code]['description']. ' '.$detail;
+            $this->errorDescription = $this->_errors[$code]['description']. ' '.$detail;
         } else {
             $this->errorId          = $this->_errors['INTERNAL_ERROR']['id'];
-            $this->description = $this->_errors['INTERNAL_ERROR']['description']. ' '.$detail;
+            $this->errorDescription = $this->_errors['INTERNAL_ERROR']['description']. ' '.$detail;
         }
 
     }
