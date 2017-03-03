@@ -1,4 +1,5 @@
 # KISS-REST (Documentación bajo revisión continua)
+Por Alejandro Gabriel Prieto (Levitarmouse)
 
 Instalación:
 
