@@ -20,7 +20,7 @@ if (!defined('APP_PATH')) {
 $app_path = APP_PATH;
 
 if (!defined('LOGS_PATH')) {
-    define("LOGS_PATH", ROOT_PATH."logs/messages.logs");
+    define("LOGS_PATH", "/tmp/kissrest.logs");
 }
 
 if (!defined('APP_NAME')) {
@@ -52,6 +52,11 @@ if (!defined('BUSSINES_LOGIC_PATH')) {
 }
 $app_path = APP_PATH;
 
+if (!defined('VIEWS_PATH')) {
+    define("VIEWS_PATH", BUSSINES_LOGIC_PATH.'views/');
+}
+$views_path = APP_PATH;
+
 define("VENDOR_PATH", ROOT_PATH.'vendor/');
     
 define ('DB_CONFIG', CONFIG_PATH.'database.ini');
@@ -61,6 +66,10 @@ define ('REST_CONFIG', CONFIG_PATH.'rest.ini');
 define ('UPLOADS_LOCATION', ROOT_PATH.'uploads/');
 define ('PUBLISH_LOCATION', '');
 define ('IMAGES_SOURCE', '');
+
+define ('XSS_VALIDATION', false);
+
+define ('CSRF_VALIDATION', false);
 
 $aWebServicesPSR0 = array();
 $aWebServicesPSR0[] = LIB_PATH;

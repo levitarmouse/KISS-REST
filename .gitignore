@@ -2,3 +2,4 @@
 /vendor/*
 /uploads/*
 composer.lock
+/src/

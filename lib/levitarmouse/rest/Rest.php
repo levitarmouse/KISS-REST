@@ -12,8 +12,9 @@ namespace levitarmouse\rest;
 
 use \levitarmouse\rest\Response;
 use \levitarmouse\core\ConfigIni;
+use \levitarmouse\tools\logs\Logger;
 
-// para no eviar cookies al controller linkeado con pump/
+// para no enviar cookies a los controladores listados
 $m = ($_SERVER['REQUEST_METHOD'] == 'POST');
 $y = $_SERVER['REQUEST_URI'];
 $x = preg_match('(pump/[a-z0-9A-Z]*)', $y);
@@ -73,12 +74,14 @@ class Rest {
         $token = hash('sha256', $token);
         return $token;
     }
-    
+
     protected function initSecurity() {
-        
+
     }
 
     public function handleRequest() {
+
+        $warnings = \levitarmouse\core\WarningsResponse::getInstance();
 
         if ($this->config === null
             || is_a($this->config, 'ConfigIni')) {
@@ -87,10 +90,16 @@ class Rest {
             $restConfig = $this->config;
         }
         
+        $bXSSTest = XSS_VALIDATION;
+        $bCSRFTest = CSRF_VALIDATION;
+
         try {
             $input = file_get_contents("php://input");
             $aReq = json_decode(file_get_contents("php://input"));
 
+            Logger::log('RawRequest');
+            Logger::log($aReq);
+            
             $invalidParams = null;
 
             if (!$aReq) {
@@ -112,10 +121,12 @@ class Rest {
             $params = (new \levitarmouse\rest\RequestParams($aReq, $method))->getContent($method);
 
             if ($method == 'POST' && isset($params->HTTP_METHOD)) {
-                if (in_array($params->HTTP_METHOD, array('GET', 'POST', 'PUT', 'DELETE', 'PUSH', 'OPTIONS'))) {
+                if (in_array($params->HTTP_METHOD, array('GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'))) {
                     $method = $params->HTTP_METHOD;
                 }
             }
+            
+            $params->http_method = $method;
 
             $what = null;
             $action = null;
@@ -148,7 +159,7 @@ class Rest {
 
                 $hierarchySize = count($whatArray);
 
-                if ($hierarchySize == 2) {
+               if ($hierarchySize == 2) {
 ////                    $action = $this->getActionByHTTPMethod($method);
                }
 
@@ -159,22 +170,7 @@ class Rest {
                     $with = (isset($whatArray[2]) ) ? strtolower($whatArray[2]) : null;
 
                 }
-                
-                if ($hierarchySize == 4) {
 
-                    $group = (isset($whatArray[2]) ) ? strtolower($whatArray[2]) : null;
-                    
-                    $with  = (isset($whatArray[3]) ) ? strtolower($whatArray[3]) : null;
-                }
-                
-                if ($hierarchySize == 5) {
-
-                    $group = (isset($whatArray[2]) ) ? strtolower($whatArray[2]) : null;
-
-                    $subgroup = (isset($whatArray[3]) ) ? strtolower($whatArray[3]) : null;
-                    
-                    $with  = (isset($whatArray[4]) ) ? strtolower($whatArray[4]) : null;
-                }
             }
 
             $oLogger = null;
@@ -216,6 +212,9 @@ class Rest {
                 $handleHttpMethod = $method;
 
                 $what = (!empty($what)) ? $what : $handleHttpMethod;
+                
+                $handler->what = $what;
+                $handler->httpMethod = $method;
 
                 $methodStr = $restConfig->get('METHODS_ROUTING./' . $what."@".$method);
 
@@ -226,6 +225,12 @@ class Rest {
                     $methodStr = $aMethodStr[0];
                 }
 
+                $bVIEW      = (isset($aMethodStr[1]) && strtoupper($aMethodStr[1]) == 'VIEW');
+                if ($bVIEW) {
+                    $methodStr = $aMethodStr[0];
+                }
+                $params->returnView = $bVIEW;
+
                 if ($methodStr == null) {
                     // require basado en metodos POST, PUT, DELETE
                     $methodStr = $restConfig->get('METHODS_ROUTING.' . $method);
@@ -233,50 +238,49 @@ class Rest {
 
                 $methodStr = ($methodStr !== null) ? $methodStr : 'UndefiniedComponent';
 
-/*
-                if (in_array(strtoupper($method), array('POST', 'PUT', 'DELETE', 'GET'))) {
-                    if (!in_array(strtolower($methodStr), array('hello'))
-                    ) {
+                try {
+                    
+                    if (in_array($method, array('POST', 'PUT') ) )  {
+                        if ($bCSRFTest) {
+                            $dto = new \levitarmouse\tools\security\InjectionCheckerRequest();
 
-                        $headers = getallheaders();
+                            $byUserCRUD = array('pass1', 'pass2', 'npass1', 'npass2', 'password');
+                            $byPumpsInput = array('fechadato', 'niveldetanque', 'caudalacumulado', 'alarma1');
 
-                        $csrf = (isset($headers['AuthorizationCSRF'])) ? $headers['AuthorizationCSRF'] : '';
+                            $omitions = array_merge($byUserCRUD, $byPumpsInput);
+                            
+                            $dto->omissions = $omitions;
 
-                        if (!$csrf) {
-                            $csrf = (isset($headers['Authorizationcsrf'])) ? $headers['Authorizationcsrf'] : '';
+
+                            $xssTest = new \levitarmouse\tools\security\InjectionChecker($dto);
+
+                            $paramsToAnalize = $params->getAttribs();
+                            $xssTestResult = $xssTest->check($paramsToAnalize);
+                            
+                            if ($xssTestResult->getStatus() == 'INVALID') {
+                                $invalidList = $xssTestResult->getInvalid();
+                                
+                                foreach ($invalidList as $key => $value) {
+                                    $warnings->appendWarning($key, '');
+                                }                                
+                                throw new \Exception(Response::INVALID_PARAMS);
+                            }
                         }
-                        if (!$csrf) {
-                            $csrf = (isset($headers['authorizationcsrf'])) ? $headers['authorizationcsrf'] : '';
-                        }
-
-                        $bCreateOrLogin = (strtoupper($what) == 'ACCOUNT' && strtoupper($methodStr) == 'CREATE');
-
-                        $params->token = $csrf;
                     }
 
-//                    if (strtoupper($method) == 'GET') {
-//                        $headers = getallheaders();
-//
-//                        $csrf = (isset($headers['AuthorizationCSRF'])) ? $headers['AuthorizationCSRF'] : '';
-//
-//                        if (!$csrf) {
-//                            $csrf = (isset($headers['Authorizationcsrf'])) ? $headers['Authorizationcsrf'] : '';
-//                        }
-//                        if (!$csrf) {
-//                            $csrf = (isset($headers['authorizationcsrf'])) ? $headers['authorizationcsrf'] : '';
-//                        }
-//                        $params->token = $csrf;
-//                    }
-                }
-*/
-
-                try {
-
+                    $authController = new \controllers\AuthController();
+                    
+                    $sessionProfile = $authController->getSessionProfile();
+                    $params->sessionProfile = $sessionProfile;
+                    
                     ///////////////////////////////////////
                     //// CALL THE HANDLER  ////////////////
                     ///////////////////////////////////////
                     $result = $handler->$methodStr($params);
                     ///////////////////////////////////////
+
+		    Logger::log('RawResponse');
+		    Logger::log($result);
 
                     $rawResponse = $bRAW;
 
@@ -290,7 +294,6 @@ class Rest {
                         if ($rawResponse) {
                             $this->rawResponse($result);
                         } else {
-//                        if ($rawResponse !== true) {
                             $response = new Response();
                             $response->responseContent = $result;
 
@@ -300,6 +303,7 @@ class Rest {
                     }
 
                 }
+
                 catch (\levitarmouse\core\HTTP_Exception $ex) {
                     
                     header('HTTP/1.1 500');
@@ -315,9 +319,13 @@ class Rest {
                 }
                 catch (\Exception $ex) {
                     
-//                    header('HTTP/1.1 500');
-                    
                     $result = new Response();
+                    
+                    $bWarn = $warnings->has;
+                    if ($bWarn) {
+                        $result->warnings = $warnings;
+                    }
+                    
                     if ($ex->getMessage()) {
                         $message = $ex->getMessage();
                         if ($obj = json_decode($message)) {
@@ -359,8 +367,8 @@ class Rest {
 
         IF ($apiType == 'REST') {
             $this->responseJson($result);
+            }
         }
-    }
 
     public function validateCsrf($token, $bCreateOrLogin) {
 
@@ -381,26 +389,30 @@ class Rest {
 
     }
 
-    public function rawResponse(RawResponseDTO $result) {
+    public function rawResponse($response = null) {
 
-        if ($result->httpCode) {
-            header('HTTP/1.1 '.$result->httpCode);
-        }
-
-        if ($result->contentType) {
-            switch (strtoupper($result->contentType)) {
-                case 'PLAIN':
-                    header('Content-Type: text/plain');
-                    echo $result->content;
-                break;
-                case 'JSON':
-                    header('Content-type: application/json');
-                    echo json_encode($result->content);
-                break;
-                default:
-                header('Content-type: application/json');
-                break;
+        if (is_a($response, 'levitarmouse\rest\RawResponseDTO')) {
+            if ($response->httpCode) {
+                header('HTTP/1.1 '.$response->httpCode);
             }
+
+            if ($response->contentType) {
+                switch (strtoupper($response->contentType)) {
+                    case 'PLAIN':
+                        header('Content-Type: text/plain');
+                        echo $response->content;
+                    break;
+                    case 'JSON':
+                        header('Content-type: application/json');
+                        echo json_encode($response->content);
+                    break;
+                    default:
+                        header('Content-type: application/json');
+                    break;
+                }
+            }            
+        } else {
+            echo $response;
         }
 
         die;
@@ -415,16 +427,16 @@ class Rest {
             if ($httpCode)
                 http_response_code($httpCode);
 
-            if (!$exception->exceptionDescription) {
-//                $toShow = $result->description;
-            } else {
+            $toShow = $result->description;
+            if ($exception->exceptionDescription) {
                 $toShow = $exception->exceptionDescription;
             }
-            echo $toShow;
-        } else {
-            header('Content-type: text/json');
-            header('Content-type: application/json');
-            echo json_encode($result);
-        }
+            $result = $toShow;
+        } 
+
+	header('Content-type: text/json');
+	header('Content-type: application/json');
+
+        echo json_encode($result);
     }
 }
