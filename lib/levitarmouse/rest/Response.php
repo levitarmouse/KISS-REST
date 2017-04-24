@@ -81,7 +81,6 @@ class Response
             self::ALREADY_EXIST                => array('id' => 152, 'description' => 'El elemento que desea crear ya existe'),
             self::DOESNT_EXIST                 => array('id' => 153, 'description' => 'El elemento que desea modificar no existe'),
             self::VALID_CSRF_TOKEN_IS_REQUIRED => array('id' => 505, 'description' => 'CSRF detected'),
-
             self::NICK_NAME_OR_PASSTOKEN_EMPTY => array('id' => 110, 'description' => 'Usuario o Clave invalidos'),
             self::ACCESS_DENIED                => array('id' => 114, 'description' => 'El acceso está restringido para sus credenciales de acceso'),
             self::ACCESS_ORG_DENIED            => array('id' => 115, 'description' => 'El acceso está restringido por Inhabilitación en jerarquía'),
@@ -112,7 +111,5 @@ class Response
             $this->errorId          = $this->_errors['INTERNAL_ERROR']['id'];
             $this->errorDescription = $this->_errors['INTERNAL_ERROR']['description']. ' '.$detail;
         }
-
     }
-
 }

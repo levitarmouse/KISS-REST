@@ -1,12 +1,12 @@
 <?php
 
-function autoloadAdd_SRC($path) {
-    global $aWebServicesPSR0;
-
-    if (is_string($path)) {
-        $aWebServicesPSR0[] = $path;
-    }
-}
+//function autoloadAdd_SRC($path) {
+//    global $aWebServicesPSR0;
+//
+//    if (is_string($path)) {
+//        $aWebServicesPSR0[] = $path;
+//    }
+//}
 
 function autoloadPSR_0($sFullClassName) {
     global $aWebServicesPSR0;

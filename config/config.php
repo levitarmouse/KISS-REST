@@ -59,8 +59,6 @@ $views_path = APP_PATH;
 
 define("VENDOR_PATH", ROOT_PATH.'vendor/');
     
-define ('DB_CONFIG', CONFIG_PATH.'database.ini');
-
 define ('REST_CONFIG', CONFIG_PATH.'rest.ini');
 
 define ('UPLOADS_LOCATION', ROOT_PATH.'uploads/');

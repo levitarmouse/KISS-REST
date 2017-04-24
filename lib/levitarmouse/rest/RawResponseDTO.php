@@ -14,7 +14,6 @@ namespace levitarmouse\rest;
  * @author gabriel
  */
 
-
 /* content type options
 //    application/json
 //    application/x-www-form-urlencoded
