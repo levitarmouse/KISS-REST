@@ -8,11 +8,11 @@
  * @link      coming soon
  */
 
-namespace levitarmouse\rest;
+namespace rest;
 
-use \levitarmouse\rest\Response;
+use \rest\Response;
 use \levitarmouse\core\ConfigIni;
-use \levitarmouse\tools\logs\Logger;
+use \levitarmouse\core\Logger;
 
 // para no enviar cookies a los controladores listados
 $m = ($_SERVER['REQUEST_METHOD'] == 'POST');
@@ -97,8 +97,8 @@ class Rest {
             $input = file_get_contents("php://input");
             $aReq = json_decode(file_get_contents("php://input"));
 
-            Logger::log('RawRequest');
-            Logger::log($aReq);
+//            Logger::log('RawRequest');
+//            Logger::log($aReq);
             
             $invalidParams = null;
 
@@ -118,7 +118,7 @@ class Rest {
 
             $method = filter_input(INPUT_SERVER, 'REQUEST_METHOD');
 
-            $params = (new \levitarmouse\rest\RequestParams($aReq, $method))->getContent($method);
+            $params = (new \rest\RequestParams($aReq, $method))->getContent($method);
 
             if ($method == 'POST' && isset($params->HTTP_METHOD)) {
                 if (in_array($params->HTTP_METHOD, array('GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'))) {
@@ -279,17 +279,17 @@ class Rest {
                     $result = $handler->$methodStr($params);
                     ///////////////////////////////////////
 
-		    Logger::log('RawResponse');
-		    Logger::log($result);
+//		    Logger::log('RawResponse');
+//		    Logger::log($result);
 
                     $rawResponse = $bRAW;
 
-                    if (is_a($result, '\levitarmouse\rest\Response')) {
+                    if (is_a($result, '\rest\Response')) {
                         if ($result->errorId != 0) {
 
                             throw new \Exception($result->description);
                         }
-                        $result->setError(\levitarmouse\rest\Response::NO_ERRORS);
+                        $result->setError(\rest\Response::NO_ERRORS);
                     } else {
                         if ($rawResponse) {
                             $this->rawResponse($result);
@@ -297,7 +297,7 @@ class Rest {
                             $response = new Response();
                             $response->responseContent = $result;
 
-                            $response->setError(\levitarmouse\rest\Response::NO_ERRORS);
+                            $response->setError(\rest\Response::NO_ERRORS);
                             $result = $response;
                         }
                     }
@@ -339,7 +339,7 @@ class Rest {
                         }
                     } else {
                         $result->exception = $ex;
-                        $result->setError(levitarmouse\rest\Response::INTERNAL_ERROR);
+                        $result->setError(rest\Response::INTERNAL_ERROR);
                     }
                 }
             }
@@ -354,7 +354,7 @@ class Rest {
                 $mesg = Response::INTERNAL_ERROR;
             }
 
-            $result = new \levitarmouse\rest\Response();
+            $result = new \rest\Response();
             $result->setError($mesg);
 
             if ($invalidParams) {
@@ -391,7 +391,7 @@ class Rest {
 
     public function rawResponse($response = null) {
 
-        if (is_a($response, 'levitarmouse\rest\RawResponseDTO')) {
+        if (is_a($response, 'rest\RawResponseDTO')) {
             if ($response->httpCode) {
                 header('HTTP/1.1 '.$response->httpCode);
             }

@@ -8,14 +8,14 @@
  * @link      coming soon
  */
 
-namespace levitarmouse\rest;
+namespace rest;
 //use levitarmouse\core\database\PDOProxy;
 
 //use levitarmouse\core\database\Database;
 //use levitarmouse\core\database\PDOProxy;
 //use levitarmouse\core\log\Logger;
 use levitarmouse\kiss_orm\Mapper;
-use levitarmouse\rest\Response;
+use rest\Response;
 
 use PRPOpCodes;
 //use sm\mgmt\SessionDTO;

@@ -10,7 +10,7 @@ if (!defined('USE_MEMCACHE')) {
 }
 
 if (!defined('ROOT_PATH')) {
-    define("ROOT_PATH", realpath(__DIR__."/../")."/");
+    define("ROOT_PATH", realpath(__DIR__."/../../")."/");
 }
 $root_path = ROOT_PATH;
 
@@ -38,7 +38,7 @@ if (!defined('LIB_PATH')) {
 $lib_path = LIB_PATH;
 
 if (!defined('CONFIG_PATH')) {
-    define("CONFIG_PATH", ROOT_PATH.'config/');
+    define("CONFIG_PATH", ROOT_PATH.'config/kissrest/');
 }
 $config_path = CONFIG_PATH;
 
@@ -58,6 +58,9 @@ if (!defined('VIEWS_PATH')) {
 $views_path = APP_PATH;
 
 define("VENDOR_PATH", ROOT_PATH.'vendor/');
+
+define("KISS_REST_PATH", VENDOR_PATH.'levitarmouse/kiss_rest/lib/');
+$kiss_vendor_path = KISS_REST_PATH;
     
 define ('REST_CONFIG', CONFIG_PATH.'rest.ini');
 
@@ -70,6 +73,7 @@ define ('XSS_VALIDATION', false);
 define ('CSRF_VALIDATION', false);
 
 $aWebServicesPSR0 = array();
+$aWebServicesPSR0[] = KISS_REST_PATH;
 $aWebServicesPSR0[] = LIB_PATH;
 $aWebServicesPSR0[] = APP_PATH;
 $aWebServicesPSR0[] = BUSSINES_LOGIC_PATH;

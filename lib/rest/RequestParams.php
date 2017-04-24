@@ -8,7 +8,7 @@
  * @link      coming soon
  */
 
-namespace levitarmouse\rest;
+namespace rest;
 
 class RequestParams
 {

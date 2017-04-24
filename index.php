@@ -1,6 +1,6 @@
 <?php
 
-include_once './config/config.php';
+include_once './config/kissrest/Bootstrap.php';
 
 $composerAutoloader = __DIR__.'/vendor/autoload.php';
 if (file_exists($composerAutoloader)) {
@@ -8,6 +8,6 @@ if (file_exists($composerAutoloader)) {
     
 }
 
-$restHandler = new \levitarmouse\rest\Rest(REST_CONFIG);
+$restHandler = new rest\Rest(REST_CONFIG);
 
 $restHandler->handleRequest();

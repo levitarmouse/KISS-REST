@@ -6,7 +6,7 @@
  * and open the template in the editor.
  */
 
-namespace levitarmouse\rest;
+namespace rest;
 
 /**
  * Description of RawResponseDTO
