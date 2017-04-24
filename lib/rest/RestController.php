@@ -76,34 +76,34 @@ class RestController
         return $this->hello($params);
     }
 
-//    public function hello($params = null) {
-//
-//        $thisClass = get_class($this);
-//
-//        if ($thisClass != 'levitarmouse\rest\RestController') {
-//            $method = $this->httpMethod;
-//
-//            $exception = new \levitarmouse\core\Request_Exception(Response::DEPLOYMENT_EXCEPTION);
-//            $exception->httpCode = 40
-//                    ;
-//            $exception->httpMethod = $method;
-//            $exception->exceptionDescription = "You dont implemented ".$method."  Response in your Controller yet. ";
-//            $exception->exceptionDescription .= "Do it inside him and configure routing in rest.ini as /entity@$method = name where name is the function name which handle the HTTP method";
-//
-//            $exception->exceptionDescription  = "You did not implement the method that manage ".$method."s in your controller yet. ";
-//            $exception->exceptionDescription .= "Do it inside it and after configure the routing in rest.ini as /entity@".$method." = name";
-//            $exception->exceptionDescription .= "(where name is the the function in your controller that manage the $method HTTP method.)";
-//
-//            throw $exception;
-//        } else {
-//            $response = new \levitarmouse\rest\HelloResponse();
-//        }
-//
-//        $response->sessionId = session_id();
-//        $response->time      = date('d-m-Y H:i:s');
-//
-//        return $response;
-//    }
+    public function hello($params = null) {
+
+        $thisClass = get_class($this);
+
+        if ($thisClass != 'rest\RestController') {
+            $method = $this->httpMethod;
+
+            $exception = new \levitarmouse\core\Request_Exception(Response::DEPLOYMENT_EXCEPTION);
+            $exception->httpCode = 40
+                    ;
+            $exception->httpMethod = $method;
+            $exception->exceptionDescription = "You dont implemented ".$method."  Response in your Controller yet. ";
+            $exception->exceptionDescription .= "Do it inside him and configure routing in rest.ini as /entity@$method = name where name is the function name which handle the HTTP method";
+
+            $exception->exceptionDescription  = "You did not implement the method that manage ".$method."s in your controller yet. ";
+            $exception->exceptionDescription .= "Do it inside it and after configure the routing in rest.ini as /entity@".$method." = name";
+            $exception->exceptionDescription .= "(where name is the the function in your controller that manage the $method HTTP method.)";
+
+            throw $exception;
+        } else {
+            $response = new \rest\HelloResponse();
+        }
+
+        $response->sessionId = session_id();
+        $response->time      = date('d-m-Y H:i:s');
+
+        return $response;
+    }
 
     /**
      *

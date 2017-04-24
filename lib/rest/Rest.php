@@ -135,7 +135,17 @@ class Rest {
             // fix donweb
             $PATH_INFO = filter_input(INPUT_SERVER, 'REQUEST_URI');
 
-            $PATH_INFO = str_replace(APP_NAME.'/', '', $PATH_INFO);
+            if (APP_NAME) {
+                $PATH_INFO = str_replace(APP_NAME.'/', '', $PATH_INFO);
+            } else {
+                $SCRIPT_NAME = filter_input(INPUT_SERVER, 'SCRIPT_FILENAME');
+                $aScripName = explode('/', $SCRIPT_NAME);
+                $script = array_pop($aScripName);
+                $app = array_pop($aScripName);
+                
+                $PATH_INFO = str_replace($app.'/', '', $PATH_INFO);                
+            }
+            
 
             if (strlen($PATH_INFO) == 1) {
                 $PATH_INFO = null;
@@ -160,7 +170,7 @@ class Rest {
                 $hierarchySize = count($whatArray);
 
                if ($hierarchySize == 2) {
-////                    $action = $this->getActionByHTTPMethod($method);
+//                    $action = $this->getActionByHTTPMethod($method);
                }
 
                 $what = (isset($whatArray[1]) ) ? $whatArray[1] : null;
@@ -168,9 +178,7 @@ class Rest {
                 if ($hierarchySize == 3) {
 
                     $with = (isset($whatArray[2]) ) ? strtolower($whatArray[2]) : null;
-
                 }
-
             }
 
             $oLogger = null;
@@ -179,14 +187,15 @@ class Rest {
 
             // Frontal Controller idenfication
             if ($default) {
-                $fwName  = CORE;
+//                $fwName  = CORE;
 
                 $strController = (empty($what)) ? "DEFAULT.DEFAULT_CONTROLLER" : '';
 
                 $classStr = $restConfig->get($strController);
 
                 if ($classStr === 'RestController') {
-                    $class = $fwName . '\rest\\' . $classStr;
+//                    $class = $fwName . '\rest\\' . $classStr;
+                    $class = '\rest\\' . $classStr;
                 } else {
                     $class = $class = '\controllers\\' . $classStr;
                 }
@@ -216,7 +225,11 @@ class Rest {
                 $handler->what = $what;
                 $handler->httpMethod = $method;
 
-                $methodStr = $restConfig->get('METHODS_ROUTING./' . $what."@".$method);
+//                if ($default) {
+//                    $methodStr = $restConfig->get('METHODS_ROUTING./' . "@".$method);                    
+//                } else {
+                    $methodStr = $restConfig->get('METHODS_ROUTING./' . $what."@".$method);                    
+//                }
 
                 $aMethodStr = explode('-->', $methodStr);
 
@@ -268,10 +281,10 @@ class Rest {
                         }
                     }
 
-                    $authController = new \controllers\AuthController();
-                    
-                    $sessionProfile = $authController->getSessionProfile();
-                    $params->sessionProfile = $sessionProfile;
+//                    $authController = new \controllers\AuthController();
+//                    
+//                    $sessionProfile = $authController->getSessionProfile();
+//                    $params->sessionProfile = $sessionProfile;
                     
                     ///////////////////////////////////////
                     //// CALL THE HANDLER  ////////////////
