@@ -8,7 +8,7 @@
     "name": "levitarmouse/kiss_rest",
     "description": "Micro Framework para gestión de API REST",
     "license": "proprietary",
-    "type": "project",
+    "type": "library",
     "require": {
         "php" : ">=5.3.3",
         "levitarmouse/core": "dev-dev"
