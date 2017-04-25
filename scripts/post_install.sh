@@ -1,8 +1,8 @@
 #!/bin/bash
 
-mv ./vendor/levitarmouse/kiss_rest/index.php .
-mv ./vendor/levitarmouse/kiss_rest/.htaccess .
-
+mv ./vendor/levitarmouse/kiss_rest/index.php .;
+mv ./vendor/levitarmouse/kiss_rest/.htaccess .;
+mv ./vendor/levitarmouse/kiss_rest/App .;
 
 mkdir -p config/kissrest;
 cd ./config/kissrest;
