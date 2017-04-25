@@ -3,6 +3,10 @@
         {
             "type": "git",
             "url": "https://github.com/levitarmouse/KISS-CORE"
+        },
+        {
+            "type": "git",
+            "url": "https://github.com/levitarmouse/COMMON_TOOLS"
         }
     ],
     "name": "levitarmouse/kiss_rest",
@@ -11,7 +15,8 @@
     "type": "library",
     "require": {
         "php" : ">=5.3.3",
-        "levitarmouse/core": "dev-dev"
+        "levitarmouse/core": "dev-dev",
+        "levitarmouse/common_tools": "dev-dev"
     },
     "authors": [
         {
