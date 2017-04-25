@@ -4,10 +4,10 @@ Por Alejandro Gabriel Prieto (Levitarmouse)
 Instalación:
 
 $cd /var/www
-$composer create-project levitarmouse/kiss-rest kissrest "1.0.*"
+$composer create-project levitarmouse/kiss-rest kissrest "dev-dev"
 
-Micro framework para gestionar API Rest. 
-(proximamente -> (Validaciones XSS y CSRF) y soporte OracleDB )
+Micro framework para gestionar APIS. 
+(proximamente -> (Validaciones XSS y CSRF) y soporte OracleDB, MongoDB a través de KISS-FRAMEWORK)
 
 Como usarlo:
 
