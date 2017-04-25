@@ -163,13 +163,18 @@ class Rest {
 
                 $PATH_INFO = str_replace(WWW_LINK_NAME, '', $PATH_INFO);
 
-                $default = false;
 
                 $whatArray = explode('/', $PATH_INFO);
 
                 $hierarchySize = count($whatArray);
 
                if ($hierarchySize == 2) {
+                   $x = $whatArray[0];
+                   $y = $whatArray[1];
+                   
+                   if ($x.$y != '') {
+                        $default = false;                       
+                   }
 //                    $action = $this->getActionByHTTPMethod($method);
                }
 
