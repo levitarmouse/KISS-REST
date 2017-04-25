@@ -19,7 +19,7 @@ Para crear un nuevo controlador, solo dirigete a la carpeta /App/controllers
 y crea allí una clase con el nombre que desees, no hay restricciones para los 
 nombres de las classes más que las impuestas por PHP.
 La clase debe pertenecer al namespace /controllers
-Además es recomendable que los controladores extiendan de la clase \levitarmouse\rest\RestController,
+Además es recomendable que los controladores extiendan de la clase \rest\RestController,
 en principio solo para obtener ayuda de los mensajes que pudiera devolver si existen problemas
 de integración. Luego será requerida para gestionar seguridad y centralizar lógica inherente a todos los
 controladores.
