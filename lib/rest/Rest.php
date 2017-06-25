@@ -8,11 +8,11 @@
  * @link      coming soon
  */
 
-namespace rest;
+namespace levitarmouse\rest;
 
-use \rest\Response;
+use \levitarmouse\rest\Response;
 use \levitarmouse\core\ConfigIni;
-use \levitarmouse\core\Logger;
+use \levitarmouse\tools\logs\Logger;
 
 // para no enviar cookies a los controladores listados
 $m = ($_SERVER['REQUEST_METHOD'] == 'POST');
@@ -118,7 +118,7 @@ class Rest {
 
             $method = filter_input(INPUT_SERVER, 'REQUEST_METHOD');
 
-            $params = (new \rest\RequestParams($aReq, $method))->getContent($method);
+            $params = (new \levitarmouse\rest\RequestParams($aReq, $method))->getContent($method);
 
             if ($method == 'POST' && isset($params->HTTP_METHOD)) {
                 if (in_array($params->HTTP_METHOD, array('GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'))) {
@@ -135,17 +135,7 @@ class Rest {
             // fix donweb
             $PATH_INFO = filter_input(INPUT_SERVER, 'REQUEST_URI');
 
-            if (APP_NAME) {
-                $PATH_INFO = str_replace(APP_NAME.'/', '', $PATH_INFO);
-            } else {
-                $SCRIPT_NAME = filter_input(INPUT_SERVER, 'SCRIPT_FILENAME');
-                $aScripName = explode('/', $SCRIPT_NAME);
-                $script = array_pop($aScripName);
-                $app = array_pop($aScripName);
-                
-                $PATH_INFO = str_replace($app.'/', '', $PATH_INFO);                
-            }
-            
+            $PATH_INFO = str_replace(APP_NAME.'/', '', $PATH_INFO);
 
             if (strlen($PATH_INFO) == 1) {
                 $PATH_INFO = null;
@@ -163,19 +153,14 @@ class Rest {
 
                 $PATH_INFO = str_replace(WWW_LINK_NAME, '', $PATH_INFO);
 
+                $default = false;
 
                 $whatArray = explode('/', $PATH_INFO);
 
                 $hierarchySize = count($whatArray);
 
                if ($hierarchySize == 2) {
-                   $x = $whatArray[0];
-                   $y = $whatArray[1];
-                   
-                   if ($x.$y != '') {
-                        $default = false;                       
-                   }
-//                    $action = $this->getActionByHTTPMethod($method);
+////                    $action = $this->getActionByHTTPMethod($method);
                }
 
                 $what = (isset($whatArray[1]) ) ? $whatArray[1] : null;
@@ -183,6 +168,7 @@ class Rest {
                 if ($hierarchySize == 3) {
 
                     $with = (isset($whatArray[2]) ) ? strtolower($whatArray[2]) : null;
+
                 }
             }
 
@@ -192,15 +178,14 @@ class Rest {
 
             // Frontal Controller idenfication
             if ($default) {
-//                $fwName  = CORE;
+                $fwName  = CORE;
 
                 $strController = (empty($what)) ? "DEFAULT.DEFAULT_CONTROLLER" : '';
 
                 $classStr = $restConfig->get($strController);
 
                 if ($classStr === 'RestController') {
-//                    $class = $fwName . '\rest\\' . $classStr;
-                    $class = '\rest\\' . $classStr;
+                    $class = $fwName . '\rest\\' . $classStr;
                 } else {
                     $class = $class = '\controllers\\' . $classStr;
                 }
@@ -230,11 +215,7 @@ class Rest {
                 $handler->what = $what;
                 $handler->httpMethod = $method;
 
-//                if ($default) {
-//                    $methodStr = $restConfig->get('METHODS_ROUTING./' . "@".$method);                    
-//                } else {
-                    $methodStr = $restConfig->get('METHODS_ROUTING./' . $what."@".$method);                    
-//                }
+                $methodStr = $restConfig->get('METHODS_ROUTING./' . $what."@".$method);
 
                 $aMethodStr = explode('-->', $methodStr);
 
@@ -255,6 +236,43 @@ class Rest {
                 }
 
                 $methodStr = ($methodStr !== null) ? $methodStr : 'UndefiniedComponent';
+
+/*
+                if (in_array(strtoupper($method), array('POST', 'PUT', 'DELETE', 'GET'))) {
+                    if (!in_array(strtolower($methodStr), array('hello'))
+                    ) {
+
+                        $headers = getallheaders();
+
+                        $csrf = (isset($headers['AuthorizationCSRF'])) ? $headers['AuthorizationCSRF'] : '';
+
+                        if (!$csrf) {
+                            $csrf = (isset($headers['Authorizationcsrf'])) ? $headers['Authorizationcsrf'] : '';
+                        }
+                        if (!$csrf) {
+                            $csrf = (isset($headers['authorizationcsrf'])) ? $headers['authorizationcsrf'] : '';
+                        }
+
+                        $bCreateOrLogin = (strtoupper($what) == 'ACCOUNT' && strtoupper($methodStr) == 'CREATE');
+
+                        $params->token = $csrf;
+                    }
+
+//                    if (strtoupper($method) == 'GET') {
+//                        $headers = getallheaders();
+//
+//                        $csrf = (isset($headers['AuthorizationCSRF'])) ? $headers['AuthorizationCSRF'] : '';
+//
+//                        if (!$csrf) {
+//                            $csrf = (isset($headers['Authorizationcsrf'])) ? $headers['Authorizationcsrf'] : '';
+//                        }
+//                        if (!$csrf) {
+//                            $csrf = (isset($headers['authorizationcsrf'])) ? $headers['authorizationcsrf'] : '';
+//                        }
+//                        $params->token = $csrf;
+//                    }
+                }
+*/
 
                 try {
                     
@@ -286,10 +304,10 @@ class Rest {
                         }
                     }
 
-//                    $authController = new \controllers\AuthController();
-//                    
-//                    $sessionProfile = $authController->getSessionProfile();
-//                    $params->sessionProfile = $sessionProfile;
+                    $authController = new \controllers\AuthController();
+                    
+                    $sessionProfile = $authController->getSessionProfile();
+                    $params->sessionProfile = $sessionProfile;
                     
                     ///////////////////////////////////////
                     //// CALL THE HANDLER  ////////////////
@@ -302,24 +320,26 @@ class Rest {
 
                     $rawResponse = $bRAW;
 
-                    if (is_a($result, '\rest\Response')) {
+                    if (is_a($result, '\levitarmouse\rest\Response')) {
                         if ($result->errorId != 0) {
 
                             throw new \Exception($result->description);
                         }
-                        $result->setError(\rest\Response::NO_ERRORS);
+                        $result->setError(\levitarmouse\rest\Response::NO_ERRORS);
                     } else {
                         if ($rawResponse) {
                             $this->rawResponse($result);
                         } else {
+//                        if ($rawResponse !== true) {
                             $response = new Response();
                             $response->responseContent = $result;
 
-                            $response->setError(\rest\Response::NO_ERRORS);
+                            $response->setError(\levitarmouse\rest\Response::NO_ERRORS);
                             $result = $response;
                         }
                     }
 
+                    $result->warnings = $warnings;
                 }
 
                 catch (\levitarmouse\core\HTTP_Exception $ex) {
@@ -357,7 +377,7 @@ class Rest {
                         }
                     } else {
                         $result->exception = $ex;
-                        $result->setError(rest\Response::INTERNAL_ERROR);
+                        $result->setError(levitarmouse\rest\Response::INTERNAL_ERROR);
                     }
                 }
             }
@@ -372,7 +392,7 @@ class Rest {
                 $mesg = Response::INTERNAL_ERROR;
             }
 
-            $result = new \rest\Response();
+            $result = new \levitarmouse\rest\Response();
             $result->setError($mesg);
 
             if ($invalidParams) {
@@ -387,6 +407,7 @@ class Rest {
             $this->responseJson($result);
             }
         }
+    }
 
     public function validateCsrf($token, $bCreateOrLogin) {
 
@@ -409,7 +430,7 @@ class Rest {
 
     public function rawResponse($response = null) {
 
-        if (is_a($response, 'rest\RawResponseDTO')) {
+        if (is_a($response, 'levitarmouse\rest\RawResponseDTO')) {
             if ($response->httpCode) {
                 header('HTTP/1.1 '.$response->httpCode);
             }

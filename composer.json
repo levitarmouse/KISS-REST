@@ -25,7 +25,7 @@
         }
     ],
     "scripts": {
-        "post-update-cmd": ["./permisos.sh", "./scripts/post_install.sh"],
+        "post-update-cmd": [""],
         "post-package-install": ["./permisos.sh"],
         "post-install-cmd": ["./permisos.sh"],
         "post-autoload-dump": ["./permisos.sh"],

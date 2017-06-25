@@ -7,7 +7,7 @@
  * @copyright 2017 Levitarmouse
  * @link      coming soon
  */
-namespace rest;
+namespace levitarmouse\rest;
 
 class Response
 {
