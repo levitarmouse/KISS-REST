@@ -8,7 +8,7 @@
  * @link      coming soon
  */
 
-namespace levitarmouse\rest;
+namespace levitarmouse\kiss_rest\core;
 
 class RequestParams
 {
@@ -34,30 +34,34 @@ class RequestParams
     }
 
     public function getContent($method = '') {
-        
+
         if (is_a($this->params, 'levitarmouse\core\Object')) {
             $content = $this->params;
         } else {
             if (is_array($this->params) || is_object($this->params) ) {
                 $content = new \levitarmouse\core\Object();
                 foreach ($this->params as $attrib => $value) {
-                    
-                    $jsonInside = false;
-                    
-                    $prospect = json_decode($value);
-                    if (is_object($prospect)) {
+
+                    $currValue = $value;
+
+                    if (is_string($currValue) ) {
                         $jsonInside = false;
-                    }
-                    
-                    if ($jsonInside) {
-                        $objectInside = new \levitarmouse\core\Object();
-                        foreach ($prospect as $insideKey => $insideValue) {
-                            $objectInside->$insideKey = $insideValue;                            
+
+                        $prospect = json_decode($currValue);
+                        if (is_object($prospect)) {
+                            $jsonInside = false;
                         }
-                        $value = $objectInside;
+
+                        if ($jsonInside) {
+                            $objectInside = new \levitarmouse\core\Object();
+                            foreach ($prospect as $insideKey => $insideValue) {
+                                $objectInside->$insideKey = $insideValue;
+                            }
+                            $currValue = $objectInside;
+                        }
                     }
-                    
-                    $content->$attrib = $value;
+
+                    $content->$attrib = $currValue;
                 }
             } else {
                 $content = $this->params;

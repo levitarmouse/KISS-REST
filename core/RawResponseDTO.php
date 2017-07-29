@@ -6,7 +6,7 @@
  * and open the template in the editor.
  */
 
-namespace levitarmouse\rest;
+namespace levitarmouse\kiss_rest\core;
 
 /**
  * Description of RawResponseDTO
@@ -27,23 +27,23 @@ namespace levitarmouse\rest;
 class RawResponseDTO {
     public $httpCode;
     public $contentType;
-    
+
     public $content;
-    
+
     function __construct($httpCode = null, $contentType = null) {
         $this->httpCode = $httpCode;
         $this->contentType = $contentType;
         $this->content = null;
     }
-    
+
     public function setCode($code) {
         $this->httpCode = $code;
     }
-    
+
     public function setContentType($contentType) {
         $this->contentType = $contentType;
     }
-    
+
     public function setContent($content) {
         $this->content = $content;
     }

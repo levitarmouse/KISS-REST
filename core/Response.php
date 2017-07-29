@@ -7,16 +7,9 @@
  * @copyright 2017 Levitarmouse
  * @link      coming soon
  */
+namespace levitarmouse\kiss_rest\core;
 
-namespace levitarmouse\rest;
-
-/**
- * Description of helloResponse
- *
- * @author gabriel
- */
-class HelloResponse extends Response
+class Response extends \levitarmouse\core\Codes
 {
-    public $token;
-    public $message;
+
 }

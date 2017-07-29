@@ -8,11 +8,12 @@
  * @link      coming soon
  */
 
-namespace levitarmouse\rest;
+namespace levitarmouse\kiss_rest\core;
 
-use \levitarmouse\rest\Response;
 use \levitarmouse\core\ConfigIni;
 use \levitarmouse\tools\logs\Logger;
+use levitarmouse\kiss_rest\core\Response;
+use levitarmouse\kiss_rest\core\RequestParams;
 
 // para no enviar cookies a los controladores listados
 $m = ($_SERVER['REQUEST_METHOD'] == 'POST');
@@ -23,7 +24,7 @@ if ($x && $m)  {
     ini_set('session.use_only_cookies', 0);
 }
 
-//ini_set('max_input_time', 90);
+ini_set('max_input_time', 90);
 
 /**
  * @property \levitarmouse\core\ConfigIni $config Rest Config Objet from /config/rest.ini
@@ -89,7 +90,7 @@ class Rest {
         } else {
             $restConfig = $this->config;
         }
-        
+
         $bXSSTest = XSS_VALIDATION;
         $bCSRFTest = CSRF_VALIDATION;
 
@@ -99,7 +100,7 @@ class Rest {
 
 //            Logger::log('RawRequest');
 //            Logger::log($aReq);
-            
+
             $invalidParams = null;
 
             if (!$aReq) {
@@ -118,24 +119,26 @@ class Rest {
 
             $method = filter_input(INPUT_SERVER, 'REQUEST_METHOD');
 
-            $params = (new \levitarmouse\rest\RequestParams($aReq, $method))->getContent($method);
+            $params = (new RequestParams($aReq, $method))->getContent($method);
 
             if ($method == 'POST' && isset($params->HTTP_METHOD)) {
                 if (in_array($params->HTTP_METHOD, array('GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'))) {
                     $method = $params->HTTP_METHOD;
                 }
             }
-            
+
             $params->http_method = $method;
 
             $what = null;
             $action = null;
             $with = null;
 
-            // fix donweb
+            $baseEndpoint = $this->config->get('DEFAULT.BASE_ENDPOINT');
+
+            // fix don_web
             $PATH_INFO = filter_input(INPUT_SERVER, 'REQUEST_URI');
 
-            $PATH_INFO = str_replace(APP_NAME.'/', '', $PATH_INFO);
+            $PATH_INFO = str_replace($baseEndpoint.'/', '', $PATH_INFO);
 
             if (strlen($PATH_INFO) == 1) {
                 $PATH_INFO = null;
@@ -185,7 +188,7 @@ class Rest {
                 $classStr = $restConfig->get($strController);
 
                 if ($classStr === 'RestController') {
-                    $class = $fwName . '\rest\\' . $classStr;
+                    $class = $fwName . '\kiss_rest\\core\\' . $classStr;
                 } else {
                     $class = $class = '\controllers\\' . $classStr;
                 }
@@ -206,12 +209,12 @@ class Rest {
                 throw new \Exception(Response::INVALID_COMPONENT);
             } else {
 
-                $params->id = $with;
+                $params->id = (isset($params->id)) ? $params->id : $with;
 
                 $handleHttpMethod = $method;
 
                 $what = (!empty($what)) ? $what : $handleHttpMethod;
-                
+
                 $handler->what = $what;
                 $handler->httpMethod = $method;
 
@@ -275,7 +278,7 @@ class Rest {
 */
 
                 try {
-                    
+
                     if (in_array($method, array('POST', 'PUT') ) )  {
                         if ($bCSRFTest) {
                             $dto = new \levitarmouse\tools\security\InjectionCheckerRequest();
@@ -284,7 +287,7 @@ class Rest {
                             $byPumpsInput = array('fechadato', 'niveldetanque', 'caudalacumulado', 'alarma1');
 
                             $omitions = array_merge($byUserCRUD, $byPumpsInput);
-                            
+
                             $dto->omissions = $omitions;
 
 
@@ -292,26 +295,27 @@ class Rest {
 
                             $paramsToAnalize = $params->getAttribs();
                             $xssTestResult = $xssTest->check($paramsToAnalize);
-                            
+
                             if ($xssTestResult->getStatus() == 'INVALID') {
                                 $invalidList = $xssTestResult->getInvalid();
-                                
+
                                 foreach ($invalidList as $key => $value) {
                                     $warnings->appendWarning($key, '');
-                                }                                
+                                }
                                 throw new \Exception(Response::INVALID_PARAMS);
                             }
                         }
                     }
 
-                    $authController = new \controllers\AuthController();
-                    
-                    $sessionProfile = $authController->getSessionProfile();
-                    $params->sessionProfile = $sessionProfile;
-                    
+//                    $authController = new \controllers\AuthController();
+
+//                    $sessionProfile = $authController->getSessionProfile();
+//                    $params->sessionProfile = $sessionProfile;
+
                     ///////////////////////////////////////
                     //// CALL THE HANDLER  ////////////////
                     ///////////////////////////////////////
+                    $handler->setConfig($this->config);
                     $result = $handler->$methodStr($params);
                     ///////////////////////////////////////
 
@@ -334,7 +338,7 @@ class Rest {
                             $response = new Response();
                             $response->responseContent = $result;
 
-                            $response->setError(\levitarmouse\rest\Response::NO_ERRORS);
+                            $response->setError(\levitarmouse\core\Codes::NO_ERRORS);
                             $result = $response;
                         }
                     }
@@ -343,9 +347,9 @@ class Rest {
                 }
 
                 catch (\levitarmouse\core\HTTP_Exception $ex) {
-                    
+
                     header('HTTP/1.1 500');
-                    
+
                     $result = new Response();
 
                     $message = $ex->getMessage();
@@ -356,14 +360,14 @@ class Rest {
                     $result->exception = $ex;
                 }
                 catch (\Exception $ex) {
-                    
+
                     $result = new Response();
-                    
+
                     $bWarn = $warnings->has;
                     if ($bWarn) {
                         $result->warnings = $warnings;
                     }
-                    
+
                     if ($ex->getMessage()) {
                         $message = $ex->getMessage();
                         if ($obj = json_decode($message)) {
@@ -384,7 +388,7 @@ class Rest {
         } catch (\Exception $ex) {
 
             header('HTTP/1.1 500');
-            
+
             global $invalidParams;
 
             $mesg = $ex->getMessage();
@@ -392,7 +396,7 @@ class Rest {
                 $mesg = Response::INTERNAL_ERROR;
             }
 
-            $result = new \levitarmouse\rest\Response();
+            $result = new Response();
             $result->setError($mesg);
 
             if ($invalidParams) {
@@ -405,7 +409,6 @@ class Rest {
 
         IF ($apiType == 'REST') {
             $this->responseJson($result);
-            }
         }
     }
 
@@ -430,7 +433,7 @@ class Rest {
 
     public function rawResponse($response = null) {
 
-        if (is_a($response, 'levitarmouse\rest\RawResponseDTO')) {
+        if (is_a($response, 'levitarmouse\kiss_rest\core\RawResponseDTO')) {
             if ($response->httpCode) {
                 header('HTTP/1.1 '.$response->httpCode);
             }
@@ -449,7 +452,7 @@ class Rest {
                         header('Content-type: application/json');
                     break;
                 }
-            }            
+            }
         } else {
             echo $response;
         }
@@ -466,12 +469,12 @@ class Rest {
             if ($httpCode)
                 http_response_code($httpCode);
 
-            $toShow = $result->description;
-            if ($exception->exceptionDescription) {
+//            $toShow = $result->description;
+//            if ($exception->exceptionDescription) {
                 $toShow = $exception->exceptionDescription;
-            }
+//            }
             $result = $toShow;
-        } 
+        }
 
 	header('Content-type: text/json');
 	header('Content-type: application/json');
