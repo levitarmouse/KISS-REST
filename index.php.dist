@@ -2,12 +2,14 @@
 
 include_once './config/kissrest/Bootstrap.php';
 
+use levitarmouse\kiss_rest\core\Rest;
+
 $composerAutoloader = __DIR__.'/vendor/autoload.php';
 if (file_exists($composerAutoloader)) {
     require $composerAutoloader;
-    
+
 }
 
-$restHandler = new rest\Rest(REST_CONFIG);
+$restHandler = new Rest(REST_CONFIG);
 
 $restHandler->handleRequest();
