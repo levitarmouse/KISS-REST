@@ -220,6 +220,10 @@ class Rest {
 
                 $methodStr = $restConfig->get('METHODS_ROUTING./' . $what."@".$method);
 
+                if ($methodStr === null) {
+                    $methodStr = $restConfig->get('METHODS_ROUTING.' . $method);
+                }
+
                 $aMethodStr = explode('-->', $methodStr);
 
                 $bRAW      = (isset($aMethodStr[1]) && strtoupper($aMethodStr[1]) == 'RAW');
@@ -431,11 +435,18 @@ class Rest {
 
     }
 
-    public function rawResponse($response = null) {
+    public function rawResponse(RawResponseDTO $response = null) {
 
         if (is_a($response, 'levitarmouse\kiss_rest\core\RawResponseDTO')) {
-            if ($response->httpCode) {
-                header('HTTP/1.1 '.$response->httpCode);
+
+            if (count($response->headers) > 0) {
+                foreach ($response->headers as $key => $value) {
+                    header($key.': '.$value);
+                }
+            } else {
+                if ($response->httpCode) {
+                    header('HTTP/1.1 '.$response->httpCode);
+                }
             }
 
             if ($response->contentType) {

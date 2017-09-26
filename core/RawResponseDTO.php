@@ -27,6 +27,7 @@ namespace levitarmouse\kiss_rest\core;
 class RawResponseDTO {
     public $httpCode;
     public $contentType;
+    public $headers;
 
     public $content;
 
@@ -34,6 +35,7 @@ class RawResponseDTO {
         $this->httpCode = $httpCode;
         $this->contentType = $contentType;
         $this->content = null;
+        $this->headers = array();
     }
 
     public function setCode($code) {
@@ -46,6 +48,10 @@ class RawResponseDTO {
 
     public function setContent($content) {
         $this->content = $content;
+    }
+
+    public function setHeader($key, $value) {
+        $this->headers[$key] = $value;
     }
 }
 

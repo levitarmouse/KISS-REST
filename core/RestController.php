@@ -34,6 +34,12 @@ class RestController
 
     public function __call($name, $request)
     {
+
+//        $corsPrefilght = $this->isPreFlightRequest();
+//        if ($corsPrefilght->is) {
+//            return $corsPrefilght->content;
+//        }
+
         $arguments = $request[0];
 
         $TokenValidation = (1*$this->oCfg->get('TOKEN_OMISSIONS.'.$name) == 0);
@@ -139,8 +145,57 @@ class RestController
     }
 
     public function options($params = null) {
-        $params->method = strtoupper(__FUNCTION__);
-        return $this->defaultHandler($params);
+
+        $corsPrefilght = $this->isPreflightRequest();
+
+        if ($corsPrefilght->is) {
+            return $corsPrefilght->content;
+        } else {
+            $params->method = strtoupper(__FUNCTION__);
+            return $this->defaultHandler($params);
+        }
+    }
+
+    public function isPreFlightRequest() {
+
+//        [HTTP_ORIGIN]	string	"http://localhost:4200"
+//        [HTTP_ACCESS_CONTROL_REQUEST_METHOD]	string	"POST"
+//        [HTTP_ACCESS_CONTROL_REQUEST_HEADERS]	string	"content-type"
+        $corsPrefilght = false;
+
+        $origin = filter_input(INPUT_SERVER, 'HTTP_ORIGIN');
+        $method = filter_input(INPUT_SERVER, 'HTTP_ACCESS_CONTROL_REQUEST_METHOD');
+        $contentType = filter_input(INPUT_SERVER, 'HTTP_ACCESS_CONTROL_REQUEST_HEADERS');
+
+        $content = false;
+        if ($method && $origin && $contentType) {
+            $corsPrefilght = true;
+
+            $content = $this->optionsPreFlight($origin, $method, $contentType);
+
+        }
+
+        $response = new \stdClass();
+        $response->is = $corsPrefilght;
+        $response->content = $content;
+
+        return $response;
+    }
+
+    /*
+    Cross-Origin Request Blocked:
+     *  The Same Origin Policy disallows
+     * reading the remote resource at http://localhost/prp/login. (
+            Reason: missing token ‘content-type’ in CORS header ‘Access-Control-Allow-Headers’
+            from CORS preflight channel)
+     */
+    public function optionsPreFlight($origin, $method, $contentType) {
+        $response = new RawResponseDTO();
+        $response->setHeader('HTTP_ORIGIN', $origin);
+        $response->setHeader('HTTP_ACCESS_CONTROL_REQUEST_METHOD', $method);
+        $response->setHeader('HTTP_ACCESS_CONTROL_REQUEST_HEADERS', $contentType);
+        $response->setHeader('Access-Control-Allow-Headers', 'content-type');
+        return $response;
     }
 
     private function defaultHandler($params = null)
