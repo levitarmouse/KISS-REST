@@ -152,7 +152,7 @@ class Rest {
             $default = true;
 
             // Identifying an entity in the request
-            if (isset($PATH_INFO)) {
+            if (isset($PATH_INFO) && !empty($PATH_INFO)) {
 
                 $PATH_INFO = str_replace(WWW_LINK_NAME, '', $PATH_INFO);
 
@@ -162,14 +162,15 @@ class Rest {
 
                 $hierarchySize = count($whatArray);
 
-               if ($hierarchySize == 2) {
+                if ($hierarchySize == 1) {
 ////                    $action = $this->getActionByHTTPMethod($method);
-               }
-
-                $what = (isset($whatArray[1]) ) ? $whatArray[1] : null;
-
+                    $what = (isset($whatArray[0]) ) ? $whatArray[0] : null;
+                }
+                if ($hierarchySize == 2) {
+////                    $action = $this->getActionByHTTPMethod($method);
+                    $what = (isset($whatArray[1]) ) ? $whatArray[1] : null;
+                }
                 if ($hierarchySize == 3) {
-
                     $with = (isset($whatArray[2]) ) ? strtolower($whatArray[2]) : null;
                 }
             }
@@ -217,7 +218,17 @@ class Rest {
                 $handler->what = $what;
                 $handler->httpMethod = $method;
 
-                $methodStr = $restConfig->get('METHODS_ROUTING./' . $what."@".$method);
+
+                $endpointRoute = $what."@".$method;
+                if (in_array($endpointRoute, array('GET@GET', 'POST@POST', 'PUT@PUT',
+                                                   'PATCH@PATCH', 'DELETE@DELETE',
+                                                   'OPTIONS@OPTIONS') ) ) {
+                    $endpointRoute = 'null';
+                } else {
+                    $endpointRoute = './'.$endpointRoute;
+                }
+
+                $methodStr = $restConfig->get('METHODS_ROUTING' . $endpointRoute);
 
                 if ($methodStr === null) {
                     $methodStr = $restConfig->get('METHODS_ROUTING.' . $method);

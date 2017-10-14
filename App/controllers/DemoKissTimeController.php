@@ -2,15 +2,11 @@
 
 namespace controllers;
 
-class DemoKissTimeController extends \rest\RestController {
+class DemoKissTimeController extends KissBaseController {
 
     public function dateTime() {
         $dateTime = date('d-m-Y H:i:s');
 
-        $response = new \rest\Response();
-
-        $response->dateTime = $dateTime;
-
-        return $response;
+        return $dateTime;
     }
 }

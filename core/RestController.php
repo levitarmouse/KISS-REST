@@ -175,33 +175,19 @@ class RestController
         return $response;
     }
 
-    /*
-    Cross-Origin Request Blocked:
-     *  The Same Origin Policy disallows
-     * reading the remote resource at http://localhost/prp/login. (
-            Reason: missing token ‘content-type’ in CORS header ‘Access-Control-Allow-Headers’
-            from CORS preflight channel)
-     */
     public function optionsPreFlight($origin, $method, $contentType) {
         $response = new RawResponseDTO();
-//        $response->setHeader('token', '');
-//        $response->setHeader('HTTP_ORIGIN', $origin);
-//        $response->setHeader('HTTP_ACCESS_CONTROL_REQUEST_METHOD', $method);
-//        $response->setHeader('HTTP_ACCESS_CONTROL_REQUEST_HEADERS', $contentType);
         $response->setHeader('origin', $origin);
         $response->setHeader('access-control-request-method', $method);
-//        $response->setHeader('access-control-request-headers', $contentType);
         $response->setHeader('Access-Control-Allow-Headers', $contentType);
-//        $response->setHeader('Access-Control-Allow-Headers', 'content-type, token');
         return $response;
     }
 
     private function defaultHandler($params = null)
     {
-
         $thisClass = get_class($this);
 
-        if ($thisClass != 'levitarmouse\core\RestController') {
+        if ($thisClass != '\levitarmouse\kiss_rest\core\RestController') {
             $method = $this->httpMethod;
 
             $exception = new \levitarmouse\core\Request_Exception(Codes::DEPLOYMENT_EXCEPTION);
@@ -217,12 +203,11 @@ class RestController
 
             throw $exception;
         } else {
-            $response = new \levitarmouse\rest\HelloResponse();
+            $response = new \levitarmouse\kiss_rest\core\HelloResponse();
         }
 
         $response->sessionId = session_id();
         $response->time      = date('d-m-Y H:i:s');
-//        $response->token  = session_id();
 
         return $response;
     }
@@ -238,8 +223,6 @@ class RestController
      * @param levitarmouse\util\security\InjectionTestResult $params
      */
     protected function validateRequestParams($params, $omissions = array(), $specialChars = array()) {
-
-//        $omissions = array('token');
 
         if (is_a($params, 'levitarmouse\core\Object')) {
             $params = $params->getAttribs();
