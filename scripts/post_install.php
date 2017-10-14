@@ -38,6 +38,7 @@ $autloader   = './config/kissrest/Autoload.php';
 
 copy('./vendor/levitarmouse/kiss_rest/App/controllers/DemoKissMessageController.php', './App/controllers/DemoKissMessageController.php');
 copy('./vendor/levitarmouse/kiss_rest/App/controllers/DemoKissTimeController.php', './App/controllers/DemoKissTimeController.php');
+copy('./vendor/levitarmouse/kiss_rest/App/controllers/KissBaseController.php', './App/controllers/KissBaseController.php');
 copy('./vendor/levitarmouse/kiss_rest/index.php.dist', './index.php');
 
 if (!file_exists($htaccess)) {
