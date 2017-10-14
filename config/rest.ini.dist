@@ -8,8 +8,8 @@ DEFAULT_CONTROLLER = "RestController"
 
 ; Your controllers
 [CONTROLLERS_ROUTING]
- /time    = "DemoTimeController"
- /message = "DemoMessageController"
+ /time    = "DemoKissTimeController"
+ /message = "DemoKissMessageController"
 
 [METHODS_ROUTING]
 ; Function routing according to HTTP METHODS when does not existing routing in your controller
