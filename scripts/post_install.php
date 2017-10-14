@@ -36,8 +36,8 @@ $restRouting = './config/kissrest/rest.ini';
 $bootstrap   = './config/kissrest/Bootstrap.php';
 $autloader   = './config/kissrest/Autoload.php';
 
-copy('./vendor/levitarmouse/kiss_rest/App/controllers/DemoMessageController.php', './App/controllers/DemoMessageController.php');
-copy('./vendor/levitarmouse/kiss_rest/App/controllers/DemoTimeController.php', './App/controllers/DemoTimeController.php');
+copy('./vendor/levitarmouse/kiss_rest/App/controllers/DemoKissMessageController.php', './App/controllers/DemoKissMessageController.php');
+copy('./vendor/levitarmouse/kiss_rest/App/controllers/DemoKissTimeController.php', './App/controllers/DemoKissTimeController.php');
 copy('./vendor/levitarmouse/kiss_rest/index.php.dist', './index.php');
 
 if (!file_exists($htaccess)) {
@@ -47,7 +47,7 @@ if (!file_exists($htaccess)) {
 }
 
 if (!file_exists($restRouting)) {
-    copy('./vendor/levitarmouse/kiss_rest/config/rest.ini', $restRouting);
+    copy('./vendor/levitarmouse/kiss_rest/config/rest.ini.dist', $restRouting);
 } else {
     echo 'INFO -> ALREADY EXIST ->'.$restRouting.PHP_EOL;
 }

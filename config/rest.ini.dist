@@ -1,0 +1,28 @@
+[DEFAULT]
+; Controller used for endpoints not associated with your controllers
+DEFAULT_CONTROLLER = "RestController"
+
+; Endpoint where the root Framework is located. Empty if the framework work at as domain
+; /dirName if work inside a subfolder
+ BASE_ENDPOINT = ""
+
+; Your controllers
+[CONTROLLERS_ROUTING]
+ /time    = "DemoTimeController"
+ /message = "DemoMessageController"
+
+[METHODS_ROUTING]
+; Function routing according to HTTP METHODS when does not existing routing in your controller
+; In these cases DEFAULT_CONTROLLER will be used
+      GET     = 'get'
+      POST    = 'post'
+      PUT     = 'put'
+      DELETE  = 'delete'
+      PATCH   = 'patch'
+      OPTIONS = 'options-->RAW'
+; Your methods routing
+; Examples
+;/entity@HTTP_METHOD  = 'functionName'
+;/entity@HTTP_METHOD  = 'functionName-->raw' En este caso la respuesta tiene el formato definido en el controller
+/time@GET     = 'dateTime'
+/message@GET  = 'saludo'
