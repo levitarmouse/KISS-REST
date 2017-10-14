@@ -23,10 +23,6 @@ if (!defined('LOGS_PATH')) {
     define("LOGS_PATH", "/tmp/kissrest.logs");
 }
 
-if (!defined('APP_NAME')) {
-    define('APP_NAME', 'kissrest');
-}
-
 if (!defined('EXTERNALS_PATH')) {
     define("EXTERNALS_PATH", ROOT_PATH.'externals/');
 }
@@ -61,7 +57,7 @@ define("VENDOR_PATH", ROOT_PATH.'vendor/');
 
 define("KISS_REST_PATH", VENDOR_PATH.'levitarmouse/kiss_rest/lib/');
 $kiss_vendor_path = KISS_REST_PATH;
-    
+
 define ('REST_CONFIG', CONFIG_PATH.'rest.ini');
 
 define ('UPLOADS_LOCATION', ROOT_PATH.'uploads/');
