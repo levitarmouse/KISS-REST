@@ -35,29 +35,17 @@ class RestController
     public function __call($name, $request)
     {
 
-//        $corsPrefilght = $this->isPreFlightRequest();
-//        if ($corsPrefilght->is) {
-//            return $corsPrefilght->content;
-//        }
-
-        $arguments = $request[0];
+        $bodyParams = $request[0];
 
         $TokenValidation = (1*$this->oCfg->get('TOKEN_OMISSIONS.'.$name) == 0);
 
-        $token = $arguments->token;
-
-//        $reqTokenSize = strlen($reqToken);
-//        if ($reqTokenSize > 70) {
-//            $token = substr($reqToken, 0, 65);
-//            $user_id = substr($reqToken, 65, $reqTokenSize);
-//        }
-//        $token = '';
-//        $user_id = $arguments->id;
+        $tokenParamName = $this->oCfg->get('TOKEN_HEADER.name');
+        $token = $bodyParams->$tokenParamName;
 
         if ($TokenValidation) {
             if (!$token) {
                 $headers = getallheaders();
-//                                         AuthorizationCSRF
+
                 $csrf = (isset($headers['AuthorizationCSRF'])) ? $headers['AuthorizationCSRF'] : '';
 
                 if (!$csrf) {
@@ -67,13 +55,16 @@ class RestController
                     $csrf = (isset($headers['authorizationcsrf'])) ? $headers['authorizationcsrf'] : '';
                 }
                 if (!$csrf) {
+                    $csrf = (isset($headers['accessToken'])) ? $headers['accessToken'] : '';
+                }
+                if (!$csrf) {
                     $csrf = (isset($headers['token'])) ? $headers['token'] : '';
                 }
 
-                $arguments->token = $csrf;
+                $bodyParams->token = $csrf;
             }
 
-            $validation = $this->validateActivity($arguments);
+            $validation = $this->validateActivity($bodyParams);
 
             if ($validation->statusCode == Codes::CHECKING_IN) {
 
@@ -83,13 +74,13 @@ class RestController
                 }
             }
 
-            $arguments->user_id = $validation->user_id;
-            $arguments->token   = $validation->token;
+            $bodyParams->user_id = $validation->user_id;
+            $bodyParams->token   = $validation->token;
         }
 
 
         if (method_exists($this, $name)) {
-            return $this->$name($arguments);
+            return $this->$name($bodyParams);
         }
 
         throw new \Exception(Codes::INVALID_COMPONENT);
@@ -163,6 +154,8 @@ class RestController
 //        [HTTP_ACCESS_CONTROL_REQUEST_HEADERS]	string	"content-type"
         $corsPrefilght = false;
 
+        $headers = getallheaders();
+
         $origin = filter_input(INPUT_SERVER, 'HTTP_ORIGIN');
         $method = filter_input(INPUT_SERVER, 'HTTP_ACCESS_CONTROL_REQUEST_METHOD');
         $contentType = filter_input(INPUT_SERVER, 'HTTP_ACCESS_CONTROL_REQUEST_HEADERS');
@@ -171,7 +164,7 @@ class RestController
         if ($method && $origin && $contentType) {
             $corsPrefilght = true;
 
-            $content = $this->optionsPreFlight($origin, $method, $contentType);
+            $content = $this->optionsPreFlight($origin, $method, $contentType, $headers);
 
         }
 
@@ -191,10 +184,15 @@ class RestController
      */
     public function optionsPreFlight($origin, $method, $contentType) {
         $response = new RawResponseDTO();
-        $response->setHeader('HTTP_ORIGIN', $origin);
-        $response->setHeader('HTTP_ACCESS_CONTROL_REQUEST_METHOD', $method);
-        $response->setHeader('HTTP_ACCESS_CONTROL_REQUEST_HEADERS', $contentType);
-        $response->setHeader('Access-Control-Allow-Headers', 'content-type');
+//        $response->setHeader('token', '');
+//        $response->setHeader('HTTP_ORIGIN', $origin);
+//        $response->setHeader('HTTP_ACCESS_CONTROL_REQUEST_METHOD', $method);
+//        $response->setHeader('HTTP_ACCESS_CONTROL_REQUEST_HEADERS', $contentType);
+        $response->setHeader('origin', $origin);
+        $response->setHeader('access-control-request-method', $method);
+//        $response->setHeader('access-control-request-headers', $contentType);
+        $response->setHeader('Access-Control-Allow-Headers', $contentType);
+//        $response->setHeader('Access-Control-Allow-Headers', 'content-type, token');
         return $response;
     }
 
@@ -237,7 +235,6 @@ class RestController
     }
 
     /**
-     *
      * @param levitarmouse\util\security\InjectionTestResult $params
      */
     protected function validateRequestParams($params, $omissions = array(), $specialChars = array()) {
@@ -287,9 +284,7 @@ class RestController
         return $response;
     }
 
-
     protected function getExpenseFreqByCode($code = '') {
-
         $freqName = '';
         if (is_string($code)) {
             switch (strtoupper($code)) {
@@ -319,5 +314,4 @@ class RestController
         }
         return $freqName;
     }
-
 }

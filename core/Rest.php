@@ -171,7 +171,6 @@ class Rest {
                 if ($hierarchySize == 3) {
 
                     $with = (isset($whatArray[2]) ) ? strtolower($whatArray[2]) : null;
-
                 }
             }
 
@@ -244,42 +243,9 @@ class Rest {
 
                 $methodStr = ($methodStr !== null) ? $methodStr : 'UndefiniedComponent';
 
-/*
-                if (in_array(strtoupper($method), array('POST', 'PUT', 'DELETE', 'GET'))) {
-                    if (!in_array(strtolower($methodStr), array('hello'))
-                    ) {
+                $headers = getallheaders();
 
-                        $headers = getallheaders();
-
-                        $csrf = (isset($headers['AuthorizationCSRF'])) ? $headers['AuthorizationCSRF'] : '';
-
-                        if (!$csrf) {
-                            $csrf = (isset($headers['Authorizationcsrf'])) ? $headers['Authorizationcsrf'] : '';
-                        }
-                        if (!$csrf) {
-                            $csrf = (isset($headers['authorizationcsrf'])) ? $headers['authorizationcsrf'] : '';
-                        }
-
-                        $bCreateOrLogin = (strtoupper($what) == 'ACCOUNT' && strtoupper($methodStr) == 'CREATE');
-
-                        $params->token = $csrf;
-                    }
-
-//                    if (strtoupper($method) == 'GET') {
-//                        $headers = getallheaders();
-//
-//                        $csrf = (isset($headers['AuthorizationCSRF'])) ? $headers['AuthorizationCSRF'] : '';
-//
-//                        if (!$csrf) {
-//                            $csrf = (isset($headers['Authorizationcsrf'])) ? $headers['Authorizationcsrf'] : '';
-//                        }
-//                        if (!$csrf) {
-//                            $csrf = (isset($headers['authorizationcsrf'])) ? $headers['authorizationcsrf'] : '';
-//                        }
-//                        $params->token = $csrf;
-//                    }
-                }
-*/
+                $params->requestHeaders = $headers;
 
                 try {
 
@@ -311,11 +277,6 @@ class Rest {
                         }
                     }
 
-//                    $authController = new \controllers\AuthController();
-
-//                    $sessionProfile = $authController->getSessionProfile();
-//                    $params->sessionProfile = $sessionProfile;
-
                     ///////////////////////////////////////
                     //// CALL THE HANDLER  ////////////////
                     ///////////////////////////////////////
@@ -338,7 +299,6 @@ class Rest {
                         if ($rawResponse) {
                             $this->rawResponse($result);
                         } else {
-//                        if ($rawResponse !== true) {
                             $response = new Response();
                             $response->responseContent = $result;
 
@@ -477,13 +437,12 @@ class Rest {
             $exception = $result->exception;
             $httpCode = $exception->httpCode;
 
-            if ($httpCode)
+            if ($httpCode) {
                 http_response_code($httpCode);
+            }
 
-//            $toShow = $result->description;
-//            if ($exception->exceptionDescription) {
-                $toShow = $exception->exceptionDescription;
-//            }
+            $toShow = $exception->exceptionDescription;
+
             $result = $toShow;
         }
 
