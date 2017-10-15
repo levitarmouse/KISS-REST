@@ -8,6 +8,7 @@ DEFAULT_CONTROLLER = "RestController"
 
 ; Your controllers
 [CONTROLLERS_ROUTING]
+ / = "HomeController"
  /RequestInfo = "RequestInfo"
  /time    = "DemoKissTimeController"
  /message = "DemoKissMessageController"
@@ -30,6 +31,7 @@ DEFAULT_CONTROLLER = "RestController"
 ; Your methods routing
 ; Examples
 ;/entity@HTTP_METHOD  = 'functionName'
-;/entity@HTTP_METHOD  = 'functionName-->raw' En este caso la respuesta tiene el formato definido en el controller
+;/entity@HTTP_METHOD  = 'functionName-->RAW' En este caso la respuesta tiene el formato definido en el controller
 /time@GET     = 'dateTime'
 /message@GET  = 'saludo'
+/@GET = 'apiRoot-->RAW'
