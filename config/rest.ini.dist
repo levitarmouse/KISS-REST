@@ -8,6 +8,7 @@ DEFAULT_CONTROLLER = "RestController"
 
 ; Your controllers
 [CONTROLLERS_ROUTING]
+ /RequestInfo = "RequestInfo"
  /time    = "DemoKissTimeController"
  /message = "DemoKissMessageController"
 
@@ -20,6 +21,12 @@ DEFAULT_CONTROLLER = "RestController"
       DELETE  = 'delete'
       PATCH   = 'patch'
       OPTIONS = 'options-->RAW'
+/RequestInfo@GET     = 'requestInfo'
+/RequestInfo@POST    = 'requestInfo'
+/RequestInfo@PUT     = 'requestInfo'
+/RequestInfo@PATCH   = 'requestInfo'
+/RequestInfo@DELETE  = 'requestInfo'
+/RequestInfo@OPTIONS = 'requestInfo'
 ; Your methods routing
 ; Examples
 ;/entity@HTTP_METHOD  = 'functionName'
