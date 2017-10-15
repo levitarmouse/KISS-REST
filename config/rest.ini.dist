@@ -4,7 +4,7 @@ DEFAULT_CONTROLLER = "RestController"
 
 ; Endpoint where the root Framework is located. Empty if the framework work at as domain
 ; /dirName if work inside a subfolder
- BASE_ENDPOINT = ""
+; BASE_ENDPOINT = "/kissf"
 
 ; Your controllers
 [CONTROLLERS_ROUTING]

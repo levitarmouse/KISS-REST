@@ -133,8 +133,9 @@ class Rest {
             $action = null;
             $with = null;
 
-            $baseEndpoint = $this->config->get('DEFAULT.BASE_ENDPOINT');
+//            $baseEndpoint = $this->config->get('DEFAULT.BASE_ENDPOINT');
 
+            $baseEndpoint = str_replace('/index.php', '', filter_input(INPUT_SERVER, 'SCRIPT_NAME'));
             // fix don_web
             $PATH_INFO = filter_input(INPUT_SERVER, 'REQUEST_URI');
 
