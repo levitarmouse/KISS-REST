@@ -131,7 +131,7 @@ class Rest {
 
             $what = null;
             $action = null;
-            $with = null;
+            $urlParam1 = $urlParam2 = $urlParam3 = $urlParam4 = null;
 
 //            $baseEndpoint = $this->config->get('DEFAULT.BASE_ENDPOINT');
 
@@ -164,15 +164,29 @@ class Rest {
                 $hierarchySize = count($whatArray);
 
                 if ($hierarchySize == 1) {
-////                    $action = $this->getActionByHTTPMethod($method);
                     $what = (isset($whatArray[0]) ) ? $whatArray[0] : null;
                 }
                 if ($hierarchySize == 2) {
-////                    $action = $this->getActionByHTTPMethod($method);
-                    $what = (isset($whatArray[1]) ) ? $whatArray[1] : null;
+                    $what = (isset($whatArray[0] ) ) ? $whatArray[0] : null;
+                    $urlParam1 = (isset($whatArray[1] ) ) ? strtolower($whatArray[1]) : null;
                 }
                 if ($hierarchySize == 3) {
-                    $with = (isset($whatArray[2]) ) ? strtolower($whatArray[2]) : null;
+                    $what = (isset($whatArray[0]) ) ? $whatArray[0] : null;
+                    $urlParam1 = (isset($whatArray[1] ) ) ? strtolower($whatArray[1]) : null;
+                    $urlParam2 = (isset($whatArray[2] ) ) ? strtolower($whatArray[2]) : null;
+                }
+                if ($hierarchySize == 4) {
+                    $what = (isset($whatArray[0]) ) ? $whatArray[0] : null;
+                    $urlParam1 = (isset($whatArray[1] ) ) ? strtolower($whatArray[1]) : null;
+                    $urlParam2 = (isset($whatArray[2] ) ) ? strtolower($whatArray[2]) : null;
+                    $urlParam3 = (isset($whatArray[3] ) ) ? strtolower($whatArray[3]) : null;
+                }
+                if ($hierarchySize == 5) {
+                    $what = (isset($whatArray[0]) ) ? $whatArray[0] : null;
+                    $urlParam1 = (isset($whatArray[1] ) ) ? strtolower($whatArray[1]) : null;
+                    $urlParam2 = (isset($whatArray[2] ) ) ? strtolower($whatArray[2]) : null;
+                    $urlParam3 = (isset($whatArray[3] ) ) ? strtolower($whatArray[3]) : null;
+                    $urlParam4 = (isset($whatArray[4] ) ) ? strtolower($whatArray[4]) : null;
                 }
             }
 
@@ -210,7 +224,10 @@ class Rest {
                 throw new \Exception(Response::INVALID_COMPONENT);
             } else {
 
-                $params->id = (isset($params->id)) ? $params->id : $with;
+                $params->urlParam1 = (isset($params->urlParam1)) ? $params->urlParam1 : $urlParam1;
+                $params->urlParam2 = (isset($params->urlParam2)) ? $params->urlParam2 : $urlParam2;
+                $params->urlParam3 = (isset($params->urlParam3)) ? $params->urlParam3 : $urlParam3;
+                $params->urlParam4 = (isset($params->urlParam4)) ? $params->urlParam4 : $urlParam4;
 
                 $handleHttpMethod = $method;
 
@@ -255,13 +272,14 @@ class Rest {
 
                 $methodStr = ($methodStr !== null) ? $methodStr : 'UndefiniedComponent';
 
-                $headers = getallheaders();
+                $headers = new \levitarmouse\core\Object(getallheaders());
 
                 $params->requestHeaders = $headers;
 
                 try {
 
-                    if (in_array($method, array('POST', 'PUT') ) )  {
+                    /*
+                    if (in_array($method, array('POST', 'PUT', 'PATCH') ) )  {
                         if ($bCSRFTest) {
                             $dto = new \levitarmouse\tools\security\InjectionCheckerRequest();
 
@@ -288,18 +306,40 @@ class Rest {
                             }
                         }
                     }
+                     */
 
-                    ///////////////////////////////////////
-                    //// CALL THE HANDLER  ////////////////
-                    ///////////////////////////////////////
-                    $handler->setConfig($this->config);
-                    $result = $handler->$methodStr($params);
-                    ///////////////////////////////////////
+                    $responsePreFlight = null;
+                    if ($method == 'OPTIONS') {
+                        $cors = $this->preFlightRequestTest();
 
-//		    Logger::log('RawResponse');
-//		    Logger::log($result);
+                        if ($cors->isCorsPreflightRequest()) {
+                            $responsePreFlight = $cors->getResponseHeaders();
 
-                    $rawResponse = $bRAW;
+                            $responsePreFlight = new RawResponseDTO();
+                            $responsePreFlight->setCode(200);
+                            $responsePreFlight->headers = $cors->getResponseHeaders();
+
+                        }
+
+                    }
+
+                    if ($responsePreFlight) {
+                        $result = $responsePreFlight;
+                        $rawResponse = true;
+                    } else {
+
+                        $requestObjet = new RequestObject($params);
+
+                        ///////////////////////////////////////
+                        //// CALL THE HANDLER  ////////////////
+                        ///////////////////////////////////////
+                        $handler->setConfig($this->config);
+                        $result = $handler->$methodStr($requestObjet);
+                        ///////////////////////////////////////
+
+                        $rawResponse = $bRAW;
+                    }
+
 
                     if (is_a($result, '\levitarmouse\rest\Response')) {
                         if ($result->errorId != 0) {
@@ -386,6 +426,18 @@ class Rest {
         IF ($apiType == 'REST') {
             $this->responseJson($result);
         }
+    }
+
+    /**
+     * @return Cors
+     */
+    public function preFlightRequestTest() {
+
+        $reqHeaders = getallheaders();
+
+        $cors = new Cors($reqHeaders);
+
+        return $cors;
     }
 
     public function validateCsrf($token, $bCreateOrLogin) {

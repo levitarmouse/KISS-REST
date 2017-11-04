@@ -3,7 +3,7 @@
  * PHP version 7
  *
  * @package   KISSREST
- * @author    Gabriel Prieto <gabriel@levitarmouse.com>
+ * @author    Gabriel Prieto <levitarmouse@gmail.com>
  * @copyright 2017 Levitarmouse
  * @link      coming soon
  */
@@ -23,7 +23,7 @@ use sm\mgmt\Session;
  *
  * @author gabriel
  */
-class RestController
+class SecureRestController
 {
     private $_alreadyStarted = false;
 
@@ -34,26 +34,56 @@ class RestController
 
     public function __call($name, $request)
     {
-        /**
-         * @var \levitarmouse\core\Object $bodyParams
-         */
-        $bodyParams = $this->getRequestParams($request);
+
+        $bodyParams = $request[0];
+
+        $TokenValidation = (1*$this->oCfg->get('TOKEN_OMISSIONS.'.$name) == 0);
+
+        $tokenParamName = $this->oCfg->get('TOKEN_HEADER.name');
+        $token = $bodyParams->$tokenParamName;
+
+        if ($TokenValidation) {
+            if (!$token) {
+                $headers = getallheaders();
+
+                $csrf = (isset($headers['AuthorizationCSRF'])) ? $headers['AuthorizationCSRF'] : '';
+
+                if (!$csrf) {
+                    $csrf = (isset($headers['Authorizationcsrf'])) ? $headers['Authorizationcsrf'] : '';
+                }
+                if (!$csrf) {
+                    $csrf = (isset($headers['authorizationcsrf'])) ? $headers['authorizationcsrf'] : '';
+                }
+                if (!$csrf) {
+                    $csrf = (isset($headers['accessToken'])) ? $headers['accessToken'] : '';
+                }
+                if (!$csrf) {
+                    $csrf = (isset($headers['token'])) ? $headers['token'] : '';
+                }
+
+                $bodyParams->token = $csrf;
+            }
+
+            $validation = $this->validateActivity($bodyParams);
+
+            if ($validation->statusCode == Codes::CHECKING_IN) {
+
+            } else {
+                if (!$validation->valid || $validation->status == 'IDLE') {
+                    throw new \Exception($validation->statusCode);
+                }
+            }
+
+            $bodyParams->user_id = $validation->user_id;
+            $bodyParams->token   = $validation->token;
+        }
+
 
         if (method_exists($this, $name)) {
             return $this->$name($bodyParams);
         }
 
         throw new \Exception(Codes::INVALID_COMPONENT);
-    }
-
-    /*
-     * @return levitarmouse\core\Object
-     */
-    protected function getRequestParams(array $request = null) {
-
-        $inputParams = ($request !== null) ? $request[0] : new \levitarmouse\core\Object();
-
-        return $inputParams;
     }
 
     public function setConfig(\levitarmouse\core\ConfigIni $configIni) {
@@ -107,8 +137,50 @@ class RestController
 
     public function options($params = null) {
 
-        $params->method = strtoupper(__FUNCTION__);
-        return $this->defaultHandler($params);
+        $corsPrefilght = $this->isPreflightRequest();
+
+        if ($corsPrefilght->is) {
+            return $corsPrefilght->content;
+        } else {
+            $params->method = strtoupper(__FUNCTION__);
+            return $this->defaultHandler($params);
+        }
+    }
+
+    public function isPreFlightRequest() {
+
+//        [HTTP_ORIGIN]	string	"http://localhost:4200"
+//        [HTTP_ACCESS_CONTROL_REQUEST_METHOD]	string	"POST"
+//        [HTTP_ACCESS_CONTROL_REQUEST_HEADERS]	string	"content-type"
+        $corsPrefilght = false;
+
+        $headers = getallheaders();
+
+        $origin = filter_input(INPUT_SERVER, 'HTTP_ORIGIN');
+        $method = filter_input(INPUT_SERVER, 'HTTP_ACCESS_CONTROL_REQUEST_METHOD');
+        $contentType = filter_input(INPUT_SERVER, 'HTTP_ACCESS_CONTROL_REQUEST_HEADERS');
+
+        $content = false;
+        if ($method && $origin && $contentType) {
+            $corsPrefilght = true;
+
+            $content = $this->optionsPreFlight($origin, $method, $contentType, $headers);
+
+        }
+
+        $response = new \stdClass();
+        $response->is = $corsPrefilght;
+        $response->content = $content;
+
+        return $response;
+    }
+
+    public function optionsPreFlight($origin, $method, $contentType) {
+        $response = new RawResponseDTO();
+        $response->setHeader('origin', $origin);
+        $response->setHeader('access-control-request-method', $method);
+        $response->setHeader('Access-Control-Allow-Headers', $contentType);
+        return $response;
     }
 
     private function defaultHandler($params = null)
@@ -138,6 +210,13 @@ class RestController
         $response->time      = date('d-m-Y H:i:s');
 
         return $response;
+    }
+
+    protected function validateActivity($request) {
+
+        $authController = new \controllers\AuthController();
+        $validation = $authController->validateActivity($request);
+        return $validation;
     }
 
     /**
@@ -186,5 +265,36 @@ class RestController
         }
 
         return $response;
+    }
+
+    protected function getExpenseFreqByCode($code = '') {
+        $freqName = '';
+        if (is_string($code)) {
+            switch (strtoupper($code)) {
+                case 'D':
+                    $freqName = 'DAILY';
+                    break;
+                case 'W':
+                    $freqName = 'WEEKLY';
+                    break;
+                case 'M':
+                    $freqName = 'MONTHLY';
+                    break;
+                case 'BM':
+                    $freqName = 'BIMONTHLY';
+                    break;
+                case 'BA':
+                    $freqName = 'BIANNUAL';
+                    break;
+                case 'Y':
+                    $freqName = 'YEARLY';
+                    break;
+                default:
+                case '':
+                    $freqName = 'NONE';
+                    break;
+            }
+        }
+        return $freqName;
     }
 }
