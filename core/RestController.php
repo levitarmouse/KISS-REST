@@ -32,6 +32,10 @@ class RestController
 
     protected $oCfg;
 
+    public function __construct($cfg = null) {
+        $this->oCfg = $cfg;
+    }
+
     public function __call($name, $request)
     {
         /**
@@ -49,9 +53,13 @@ class RestController
     /*
      * @return levitarmouse\core\Object
      */
-    protected function getRequestParams(array $request = null) {
+    protected function getRequestParams($request = null) {
 
-        $inputParams = ($request !== null) ? $request[0] : new \levitarmouse\core\Object();
+        if (is_a($request, '\levitarmouse\core\Object')) {
+            $inputParams = $request;
+        } else {
+            $inputParams = ($request !== null && is_array($request)) ? $request[0] : new \levitarmouse\core\Object();
+        }
 
         return $inputParams;
     }
@@ -60,25 +68,27 @@ class RestController
         $this->oCfg = $configIni;
     }
 
-    public function formatDateTime($dateTime, $currFromat = 'd-m-Y', $returnFormat = 'Y-M-d') {
-
-        $day = $month = $year = '';
-        if ($currFromat == 'd-m-Y') {
-            list($day, $month, $year) = explode('-', $dateTime);
-        }
-
-        $result = $dateTime;
-        switch ($returnFormat ) {
-            case 'Y-M-d':
-                $year = str_pad($year, 4, '20', STR_PAD_LEFT);
-                $month = str_pad($month, 2, '0', STR_PAD_LEFT);
-                $day = str_pad($day, 2, '0', STR_PAD_LEFT);
-
-                $result = $year.'-'.$month.'-'.$day;
-        }
-
-        return $result;
-    }
+//    public function formatDateTime($dateTime, $currFromat = 'd-m-Y', $returnFormat = 'Y-M-d') {
+//
+//        $result = \levitarmouse\common_tools\dateTime\Format::date($dateTime, $currFromat, $returnFormat)
+//
+//        $day = $month = $year = '';
+//        if ($currFromat == 'd-m-Y') {
+//            list($day, $month, $year) = explode('-', $dateTime);
+//        }
+//
+//        $result = $dateTime;
+//        switch ($returnFormat ) {
+//            case 'Y-M-d':
+//                $year = str_pad($year, 4, '20', STR_PAD_LEFT);
+//                $month = str_pad($month, 2, '0', STR_PAD_LEFT);
+//                $day = str_pad($day, 2, '0', STR_PAD_LEFT);
+//
+//                $result = $year.'-'.$month.'-'.$day;
+//        }
+//
+//        return $result;
+//    }
 
     public function get($params = null) {
         $params->method = strtoupper(__METHOD__);

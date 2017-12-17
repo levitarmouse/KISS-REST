@@ -217,7 +217,7 @@ class Rest {
 
             $handler = null;
             if (class_exists($class)) {
-                $handler = new $class();
+                $handler = new $class($this->config);
             }
 
             if (!$handler) {
@@ -272,7 +272,8 @@ class Rest {
 
                 $methodStr = ($methodStr !== null) ? $methodStr : 'UndefiniedComponent';
 
-                $headers = new \levitarmouse\core\Object(getallheaders());
+                $allHeaders = getallheaders();
+                $headers = new \levitarmouse\core\Object($allHeaders);
 
                 $params->requestHeaders = $headers;
 

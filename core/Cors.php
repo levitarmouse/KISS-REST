@@ -49,7 +49,9 @@ class Cors {
             }
 
             if (($bOrigin || $bMethod || $bHeaders)) {
-                $this->response[$index] = $value;
+
+                $headerParam = str_replace('Request', 'Allow', $index);
+                $this->response[$headerParam] = $value;
             }
         }
 
@@ -58,15 +60,19 @@ class Cors {
     }
 
     private function _init() {
+        $this->_originIndexes['ACCESS-CONTROL-ALLOW-ORIGIN'] = true;
         $this->_originIndexes['HTTP-ORIGIN'] = true;
         $this->_originIndexes['HTTP_ORIGIN'] = true;
         $this->_originIndexes['ORIGIN'] = true;
+        $this->_originIndexes['ACCESS-CONTROL-ALLOW-ORIGIN'] = true;
 
+        $this->_methodIndexes['ACCESS-CONTROL-ALLOW-METHOD'] = true;
         $this->_methodIndexes['HTTP-ACCESS-CONTROL-REQUEST-METHOD'] = true;
         $this->_methodIndexes['HTTP_ACCESS_CONTROL_REQUEST_METHOD'] = true;
         $this->_methodIndexes['ACCESS-CONTROL-REQUEST-METHOD'] = true;
         $this->_methodIndexes['ACCESS_CONTROL_REQUEST_METHOD'] = true;
 
+        $this->_headersIndexes['ACCESS-CONTROL-ALLOW-HEADERS'] = true;
         $this->_headersIndexes['HTTP-ACCESS-CONTROL-REQUEST-HEADERS'] = true;
         $this->_headersIndexes['HTTP_ACCESS_CONTROL_REQUEST_HEADERS'] = true;
         $this->_headersIndexes['ACCESS-CONTROL-REQUEST-HEADERS'] = true;
