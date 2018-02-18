@@ -16,6 +16,10 @@ class RequestParams
 
     public function __construct($data, $method = '')
     {
+        if ($data == null) {
+            $data = array();
+        }
+
         if ($method == 'GET') {
 
             $querystring = $data;
