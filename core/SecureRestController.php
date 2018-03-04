@@ -156,9 +156,12 @@ class SecureRestController
 
         $headers = getallheaders();
 
-        $origin = filter_input(INPUT_SERVER, 'HTTP_ORIGIN');
-        $method = filter_input(INPUT_SERVER, 'HTTP_ACCESS_CONTROL_REQUEST_METHOD');
-        $contentType = filter_input(INPUT_SERVER, 'HTTP_ACCESS_CONTROL_REQUEST_HEADERS');
+//        $origin = filter_input(INPUT_SERVER, 'HTTP_ORIGIN');
+//        $method = filter_input(INPUT_SERVER, 'HTTP_ACCESS_CONTROL_REQUEST_METHOD');
+//        $contentType = filter_input(INPUT_SERVER, 'HTTP_ACCESS_CONTROL_REQUEST_HEADERS');
+        $origin = $_SERVER[HTTP_ORIGIN];
+        $method = $_SERVER[HTTP_ACCESS_CONTROL_REQUEST_METHOD];
+        $contentType = $_SERVER[HTTP_ACCESS_CONTROL_REQUEST_HEADERS];
 
         $content = false;
         if ($method && $origin && $contentType) {

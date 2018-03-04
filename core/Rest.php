@@ -14,6 +14,7 @@ use \levitarmouse\core\ConfigIni;
 use \levitarmouse\tools\logs\Logger;
 use levitarmouse\kiss_rest\core\Response;
 use levitarmouse\kiss_rest\core\RequestParams;
+use levitarmouse\kiss_rest\core\CorsHandler;
 
 // para no enviar cookies a los controladores listados
 $m = ($_SERVER['REQUEST_METHOD'] == 'POST');
@@ -95,8 +96,15 @@ class Rest {
         $bCSRFTest = CSRF_VALIDATION;
 
         try {
-            $input = file_get_contents("php://input");
+//            $input = file_get_contents("php://input");
             $aReq = json_decode(file_get_contents("php://input"));
+
+//            var_dump("AA000001111");
+//            var_dump($input);
+
+//            var_dump("BB000001111");
+//            var_dump($aReq);
+
 
 //            Logger::log('RawRequest');
 //            Logger::log($aReq);
@@ -117,9 +125,21 @@ class Rest {
 
             $apiType = 'REST';
 
-            $method = filter_input(INPUT_SERVER, 'REQUEST_METHOD');
+//            $method = filter_input(INPUT_SERVER, 'REQUEST_METHOD');
+            $method = $_SERVER['REQUEST_METHOD'];
+
+//            var_dump("CC000001111");
+//            var_dump($_SERVER);
+//
+//            var_dump("DDD00001111");
+//            var_dump($method);
 
             $params = (new RequestParams($aReq, $method))->getContent($method);
+
+
+//            var_dump("EEE00001111");
+//            var_dump($params);
+
 
             if ($method == 'POST' && isset($params->HTTP_METHOD)) {
                 if (in_array($params->HTTP_METHOD, array('GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'))) {
@@ -133,17 +153,35 @@ class Rest {
             $action = null;
             $urlParam1 = $urlParam2 = $urlParam3 = $urlParam4 = null;
 
-//            $baseEndpoint = $this->config->get('DEFAULT.BASE_ENDPOINT');
+//            $baseEndpoint = filter_input(INPUT_SERVER, 'SCRIPT_NAME');
+            $baseEndpoint = $_SERVER['SCRIPT_NAME'];
 
-            $baseEndpoint = str_replace('/index.php', '', filter_input(INPUT_SERVER, 'SCRIPT_NAME'));
+//            var_dump("EEE00001111");
+//            var_dump($params);
+
+            $baseEndpoint = str_replace('/index.php', '', $baseEndpoint);
+
+//            var_dump("FFFF00001111");
+//            var_dump($baseEndpoint);
+
             // fix don_web
-            $PATH_INFO = filter_input(INPUT_SERVER, 'REQUEST_URI');
+//            $PATH_INFO = filter_input(INPUT_SERVER, 'REQUEST_URI');
+            $PATH_INFO = $_SERVER['REQUEST_URI'];
+
+//            var_dump("GGGG00001111");
+//            var_dump($PATH_INFO);
 
             $PATH_INFO = str_replace($baseEndpoint.'/', '', $PATH_INFO);
+
+//            var_dump("HHHH00001111");
+//            var_dump($PATH_INFO);
 
             if (strlen($PATH_INFO) == 1) {
                 $PATH_INFO = null;
             }
+
+//            var_dump("IIIII00001111");
+//            var_dump($PATH_INFO);
 
             if (count($aPathInfo = explode('?', $PATH_INFO)) > 1) {
                 $PATH_INFO = ($aPathInfo[0] != '/') ? $aPathInfo[0] : null;
@@ -424,7 +462,7 @@ class Rest {
             }
         }
 
-        IF ($apiType == 'REST') {
+        if ($apiType == 'REST') {
             $this->responseJson($result);
         }
     }
@@ -476,13 +514,20 @@ class Rest {
 
             if ($response->contentType) {
                 switch (strtoupper($response->contentType)) {
+                    case 'HTML':
+                        header('Content-Type: text/html');
+                        echo $response->content;
+                        die;
+                    break;
                     case 'PLAIN':
                         header('Content-Type: text/plain');
                         echo $response->content;
+                        die;
                     break;
                     case 'JSON':
                         header('Content-type: application/json');
                         echo json_encode($response->content);
+                        die;
                     break;
                     default:
                         header('Content-type: application/json');
@@ -493,7 +538,6 @@ class Rest {
             echo $response;
         }
 
-        die;
     }
 
     public function responseJson($result = null) {
@@ -514,6 +558,20 @@ class Rest {
 	header('Content-type: text/json');
 	header('Content-type: application/json');
 
-        echo json_encode($result);
+        CorsHandler::setCorsHeaders();
+
+        echo json_encode($result, JSON_PRETTY_PRINT);
+    }
+}
+
+if (!function_exists('getallheaders')) {
+    function getallheaders() {
+    $headers = [];
+    foreach ($_SERVER as $name => $value) {
+        if (substr($name, 0, 5) == 'HTTP_') {
+            $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
+        }
+    }
+    return $headers;
     }
 }
