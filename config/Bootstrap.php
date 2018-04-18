@@ -77,7 +77,7 @@ $aWebServicesPSR0[] = VENDOR_PATH;
 
 
 //$scriptName = filter_input(INPUT_SERVER, 'SCRIPT_NAME');
-$scriptName = $_SERVER[SCRIPT_NAME];
+$scriptName = $_SERVER['SCRIPT_NAME'];
 $aLinkName  = explode('/', $scriptName);
 $garbage = array_pop($aLinkName);
 $linkName   = implode('/', $aLinkName);

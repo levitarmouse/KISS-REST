@@ -555,7 +555,6 @@ class Rest {
             $result = $toShow;
         }
 
-	header('Content-type: text/json');
 	header('Content-type: application/json');
 
         CorsHandler::setCorsHeaders();
