@@ -39,7 +39,7 @@ class RestController
     public function __call($name, $request)
     {
         /**
-         * @var \levitarmouse\core\Object $bodyParams
+         * @var \levitarmouse\core\BasicObject $bodyParams
          */
         $bodyParams = $this->getRequestParams($request);
 
@@ -51,14 +51,14 @@ class RestController
     }
 
     /*
-     * @return levitarmouse\core\Object
+     * @return levitarmouse\core\BasicObject
      */
     protected function getRequestParams($request = null) {
 
-        if (is_a($request, '\levitarmouse\core\Object')) {
+        if (is_a($request, '\levitarmouse\core\BasicObject')) {
             $inputParams = $request;
         } else {
-            $inputParams = ($request !== null && is_array($request)) ? $request[0] : new \levitarmouse\core\Object();
+            $inputParams = ($request !== null && is_array($request)) ? $request[0] : new \levitarmouse\core\BasicObject();
         }
 
         return $inputParams;
@@ -155,7 +155,7 @@ class RestController
      */
     protected function validateRequestParams($params, $omissions = array(), $specialChars = array()) {
 
-        if (is_a($params, 'levitarmouse\core\Object')) {
+        if (is_a($params, 'levitarmouse\core\BasicObject')) {
             $params = $params->getAttribs();
         }
 

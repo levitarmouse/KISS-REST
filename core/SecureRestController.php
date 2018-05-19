@@ -227,7 +227,7 @@ class SecureRestController
      */
     protected function validateRequestParams($params, $omissions = array(), $specialChars = array()) {
 
-        if (is_a($params, 'levitarmouse\core\Object')) {
+        if (is_a($params, 'levitarmouse\core\BasicObject')) {
             $params = $params->getAttribs();
         }
 

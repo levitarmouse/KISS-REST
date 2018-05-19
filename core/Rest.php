@@ -311,7 +311,7 @@ class Rest {
                 $methodStr = ($methodStr !== null) ? $methodStr : 'UndefiniedComponent';
 
                 $allHeaders = getallheaders();
-                $headers = new \levitarmouse\core\Object($allHeaders);
+                $headers = new \levitarmouse\core\BasicObject($allHeaders);
 
                 $params->requestHeaders = $headers;
 

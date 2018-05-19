@@ -14,7 +14,7 @@ namespace controllers;
  * @author gabriel
  */
 class RequestInfo extends KissBaseController {
-    public function requestInfo(\levitarmouse\core\Object $request) {
+    public function requestInfo(\levitarmouse\core\BasicObject $request) {
 
         $return = $request->getAttribs();
 

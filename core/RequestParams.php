@@ -39,11 +39,11 @@ class RequestParams
 
     public function getContent($method = '') {
 
-        if (is_a($this->params, 'levitarmouse\core\Object')) {
+        if (is_a($this->params, 'levitarmouse\core\BasicObject')) {
             $content = $this->params;
         } else {
             if (is_array($this->params) || is_object($this->params) ) {
-                $content = new \levitarmouse\core\Object();
+                $content = new \levitarmouse\core\BasicObject();
                 foreach ($this->params as $attrib => $value) {
 
                     $currValue = $value;
@@ -57,7 +57,7 @@ class RequestParams
                         }
 
                         if ($jsonInside) {
-                            $objectInside = new \levitarmouse\core\Object();
+                            $objectInside = new \levitarmouse\core\BasicObject();
                             foreach ($prospect as $insideKey => $insideValue) {
                                 $objectInside->$insideKey = $insideValue;
                             }
