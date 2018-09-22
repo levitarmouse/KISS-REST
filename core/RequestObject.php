@@ -2,7 +2,7 @@
 
 namespace levitarmouse\kiss_rest\core;
 
-class RequestObject extends \levitarmouse\core\BasicObject {
+class RequestObject extends \levitarmouse\core\StdObject {
 
 //$params->urlParam1 = (isset($params->urlParam1)) ? $params->urlParam1 : $urlParam1;
 //$params->urlParam2 = (isset($params->urlParam2)) ? $params->urlParam2 : $urlParam2;
@@ -11,7 +11,7 @@ class RequestObject extends \levitarmouse\core\BasicObject {
 
 
 
-    public function __construct(\levitarmouse\core\BasicObject $params) {
+    public function __construct(\levitarmouse\core\StdObject $params) {
         parent::__construct();
 
         $this->aData = $params->aData;

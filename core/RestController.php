@@ -39,7 +39,7 @@ class RestController
     public function __call($name, $request)
     {
         /**
-         * @var \levitarmouse\core\BasicObject $bodyParams
+         * @var \levitarmouse\core\StdObject $bodyParams
          */
         $bodyParams = $this->getRequestParams($request);
 
@@ -51,14 +51,14 @@ class RestController
     }
 
     /*
-     * @return levitarmouse\core\BasicObject
+     * @return levitarmouse\core\StdObject
      */
     protected function getRequestParams($request = null) {
 
-        if (is_a($request, '\levitarmouse\core\BasicObject')) {
+        if (is_a($request, '\levitarmouse\core\StdObject')) {
             $inputParams = $request;
         } else {
-            $inputParams = ($request !== null && is_array($request)) ? $request[0] : new \levitarmouse\core\BasicObject();
+            $inputParams = ($request !== null && is_array($request)) ? $request[0] : new \levitarmouse\core\StdObject();
         }
 
         return $inputParams;
@@ -133,10 +133,10 @@ class RestController
 
             $exception->httpMethod = $method;
             $exception->exceptionDescription = "You dont implemented ".$method."  Response in your Controller yet. ";
-            $exception->exceptionDescription .= "Do it inside him and configure routing in rest.ini as /endpoint@$method = name where name is the function name which handle the HTTP method";
+            $exception->exceptionDescription .= "Do it inside him and configure routing in routes.ini as /endpoint@$method = name where name is the function name which handle the HTTP method";
 
             $exception->exceptionDescription  = "You did not implement the method that manage ".$method."s in your controller yet. ";
-            $exception->exceptionDescription .= "Do it inside it and after configure the routing in rest.ini as /endpoint@".$method." = name";
+            $exception->exceptionDescription .= "Do it inside it and after configure the routing in routes.ini as /endpoint@".$method." = name";
             $exception->exceptionDescription .= "(where name is the the function in your controller that manage the $method HTTP method.)";
 
             throw $exception;
@@ -155,7 +155,7 @@ class RestController
      */
     protected function validateRequestParams($params, $omissions = array(), $specialChars = array()) {
 
-        if (is_a($params, 'levitarmouse\core\BasicObject')) {
+        if (is_a($params, 'levitarmouse\core\StdObject')) {
             $params = $params->getAttribs();
         }
 

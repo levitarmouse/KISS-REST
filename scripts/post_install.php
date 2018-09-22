@@ -32,7 +32,7 @@ if (!is_dir($fwPath.'/App/controllers')) {
 }
 
 $htaccess    = './.htaccess';
-$restRouting = './config/kissrest/rest.ini';
+$restRouting = './config/kissrest/routes.ini';
 $bootstrap   = './config/kissrest/Bootstrap.php';
 $autloader   = './config/kissrest/Autoload.php';
 
@@ -48,7 +48,7 @@ if (!file_exists($htaccess)) {
 }
 
 if (!file_exists($restRouting)) {
-    copy('./vendor/levitarmouse/kiss_rest/config/rest.ini.dist', $restRouting);
+    copy('./vendor/levitarmouse/kiss_rest/config/routes.ini.dist', $restRouting);
 } else {
     echo 'INFO -> ALREADY EXIST ->'.$restRouting.PHP_EOL;
 }

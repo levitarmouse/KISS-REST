@@ -58,7 +58,7 @@ define("VENDOR_PATH", ROOT_PATH.'vendor/');
 define("KISS_REST_PATH", VENDOR_PATH.'levitarmouse/kiss_rest/lib/');
 $kiss_vendor_path = KISS_REST_PATH;
 
-define ('REST_CONFIG', CONFIG_PATH.'rest.ini');
+define ('REST_CONFIG', CONFIG_PATH.'routes.ini');
 
 define ('UPLOADS_LOCATION', ROOT_PATH.'uploads/');
 define ('PUBLISH_LOCATION', '');
