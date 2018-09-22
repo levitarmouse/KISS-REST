@@ -12,6 +12,7 @@ namespace levitarmouse\kiss_rest\core;
 
 use levitarmouse\kiss_orm\Mapper;
 use levitarmouse\core\Codes;
+use levitarmouse\core\ConfigIni;
 
 
 use PRPOpCodes;
@@ -196,5 +197,15 @@ class RestController
         }
 
         return $response;
+    }
+    
+    public function ping($input) {
+//        $rawResponse = new RawResponseDTO();
+//        
+//        $rawResponse->setCode(200);
+//        $rawResponse->setContent($input);
+//        $rawResponse->setContentType('plain');
+//        return $rawResponse;
+        return $input;
     }
 }

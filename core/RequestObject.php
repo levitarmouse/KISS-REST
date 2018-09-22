@@ -3,13 +3,8 @@
 namespace levitarmouse\kiss_rest\core;
 
 class RequestObject extends \levitarmouse\core\StdObject {
-
-//$params->urlParam1 = (isset($params->urlParam1)) ? $params->urlParam1 : $urlParam1;
-//$params->urlParam2 = (isset($params->urlParam2)) ? $params->urlParam2 : $urlParam2;
-//$params->urlParam3 = (isset($params->urlParam3)) ? $params->urlParam3 : $urlParam3;
-//$params->urlParam4 = (isset($params->urlParam4)) ? $params->urlParam4 : $urlParam4;
-
-
+    
+    public $reqEndpoint;
 
     public function __construct(\levitarmouse\core\StdObject $params) {
         parent::__construct();
@@ -23,6 +18,11 @@ class RequestObject extends \levitarmouse\core\StdObject {
         return $value;
     }
 
+    public function headers() {
+
+        return $this->requestHeaders->getAttribs();
+    }
+    
     public function header($name = '') {
 
         $headers = $this->requestHeaders;
