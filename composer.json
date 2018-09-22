@@ -14,9 +14,9 @@
     "license": "proprietary",
     "type": "library",
     "require": {
-        "php" : ">=5.3.3",
-        "levitarmouse/core": "dev-dev",
-        "levitarmouse/common_tools": "dev-dev"
+        "php" : ">=5.6",
+        "levitarmouse/core": "dev-beta1",
+        "levitarmouse/common_tools": "dev-beta1"
     },
     "authors": [
         {
